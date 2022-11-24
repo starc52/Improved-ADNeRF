@@ -115,7 +115,7 @@ h, w = tmp_img.shape[0], tmp_img.shape[1]
 # Step 3: face parsing
 if running_step == 3:
     print('--- Step 3: face parsing ---')
-    face_parsing_cmd = 'python data_util/face_parsing/test.py --respath=dataset/' + \
+    face_parsing_cmd = 'python data_util/face_parsing/LandmarkModels.py --respath=dataset/' + \
         id + '/parsing --imgpath=dataset/' + id + '/ori_imgs'
     os.system(face_parsing_cmd)
 
