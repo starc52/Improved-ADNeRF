@@ -1,7 +1,7 @@
 import cv2
 import time
 import os
-
+from tqdm import tqdm
 
 def preprocess(dataset_dir):
     ids = os.listdir(dataset_dir)
@@ -11,10 +11,10 @@ def preprocess(dataset_dir):
         temp = [os.path.join(dataset_dir, idx, vid) for vid in temp]
         videos += temp
 
-    for video_path in videos:
+    for video_path in tqdm(videos):
         video_to_frames(video_path, video_path.split('.')[0])
 
-def extract_landmarks()
+#def extract_landmarks()
 
 def video_to_frames(input_loc, output_loc, skip_frames=15):
     """Function to extract frames from input video file
@@ -29,7 +29,7 @@ def video_to_frames(input_loc, output_loc, skip_frames=15):
     try:
         os.mkdir(output_loc)
     except OSError:
-        pass
+        return
     # Log the time
     time_start = time.time()
     # Start capturing the feed
@@ -64,4 +64,4 @@ def video_to_frames(input_loc, output_loc, skip_frames=15):
 
 
 if __name__=='__main__':
-    preprocess('/home/starc/SBU/Sem-1/CV/Project/sample/')
+    preprocess('/scratch/tan/fraction/')
