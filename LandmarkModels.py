@@ -6,14 +6,17 @@ class LandmarkEncoder(nn.Module):
     def __init__(self, embedding_size):
         super().__init__(self)
         self.linear1 = nn.Linear(in_features=68*2, out_features=256)
-        self.lrelu1 = nn.LeakyReLU()
+        self.lrelu1 = nn.LeakyReLU(negative_slope=0.02)
+
         self.linear2 = nn.Linear(in_features=256, out_features=256)
-        self.lrelu2 = nn.LeakyReLU()
+        self.lrelu2 = nn.LeakyReLU(negative_slope=0.02)
+
         self.linear3 = nn.Linear(in_features=256, out_features=128)
-        self.lrelu3 = nn.LeakyReLU()
+        self.lrelu3 = nn.LeakyReLU(negative_slope=0.02)
+
         self.linear4_eye = nn.Linear(in_features=128, out_features=embedding_size)
         self.linear4_mouth = nn.Linear(in_features=128, out_features=embedding_size)
-        self.lrelu4 = nn.LeakyReLU()
+        self.lrelu4 = nn.LeakyReLU(negative_slope=0.02)
 
     def forward(self, landmarks):
         landmarks_flat = landmarks.view(-1, 68*2)
@@ -40,23 +43,32 @@ class LandmarkDecoder(nn.Module):
     def __init__(self, embedding_size):
         super().__init__(self)
         self.linear5 = nn.Linear(in_features=2*embedding_size, out_features=256)
-        self.relu5 = nn.ReLU()
+        self.lrelu5 = nn.LeakyReLU(negative_slope=0.02)
 
         self.linear6 = nn.Linear(in_features=256, out_features=256)
-        self.relu6 = nn.ReLU()
+        self.lrelu6 = nn.LeakyReLU(negative_slope=0.02)
 
-        self.linear7 = nn.Linear(in_features=256, out_features=68 * 2)
-        self.relu7 = nn.ReLU()
+        self.linear7 = nn.Linear(in_features=256, out_features=256)
+        self.lrelu7 = nn.LeakyReLU(negative_slope=0.02)
+
+        self.linear8 = nn.Linear(in_features=256, out_features=68 * 2)
+        self.lrelu8 = nn.LeakyReLU(negative_slope=0.02)
 
     def forward(self, eye_emb, mouth_emb):
 
         x = torch.cat((eye_emb, mouth_emb), dim=1)
 
-        x = self.linear4(x)
-        x = self.relu1(x)
-
         x = self.linear5(x)
-        x = self.relu2(x)
+        x = self.lrelu5(x)
+
+        x = self.linear6(x)
+        x = self.lrelu6(x)
+
+        x = self.linear7(x)
+        x = self.lrelu7(x)
+
+        x = self.linear8(x)
+        x = self.lrelu8(x)
 
         pred = x.view(-1, 68, 2)
 
