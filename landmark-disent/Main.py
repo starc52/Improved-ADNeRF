@@ -46,7 +46,7 @@ for epoch in range(num_epochs):
             # forward
             # track history if only in train
             with torch.set_grad_enabled(phase == 'train'):
-                _, _, loss = model(landmarks_a, landmarks_b)
+                loss_a, loss_b, loss = model(landmarks_a, landmarks_b)
 
                 # backward + optimize only if in training phase
                 if phase == 'train':
