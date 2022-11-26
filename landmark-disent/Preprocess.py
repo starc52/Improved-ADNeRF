@@ -15,8 +15,8 @@ def preprocess(dataset_dir, csv_path):
         temp = [os.path.join(dataset_dir, idx, vid) for vid in temp]
         videos += temp
 
-    for video_path in tqdm(videos):
-        video_to_frames(video_path, video_path.split('.')[0])
+    #for video_path in tqdm(videos):
+        #video_to_frames(video_path, video_path.split('.')[0])
 
     extract_landmarks(dataset_dir, csv_path)
 
