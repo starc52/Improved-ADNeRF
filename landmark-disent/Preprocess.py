@@ -1,9 +1,13 @@
 import cv2
 import time
 import os
+from tqdm import tqdm
+import pandas as pd
+import face_alignment
+from skimage import io
 
 
-def preprocess(dataset_dir):
+def preprocess(dataset_dir, csv_path):
     ids = os.listdir(dataset_dir)
     videos = []
     for idx in ids:
@@ -11,10 +15,25 @@ def preprocess(dataset_dir):
         temp = [os.path.join(dataset_dir, idx, vid) for vid in temp]
         videos += temp
 
-    for video_path in videos:
+    for video_path in tqdm(videos):
         video_to_frames(video_path, video_path.split('.')[0])
 
-def extract_landmarks()
+    extract_landmarks(dataset_dir, csv_path)
+
+
+def extract_landmarks(dataset_dir, csv_path):
+    fa = face_alignment.FaceAlignment(face_alignment.LandmarksType._2D, flip_input=False)
+
+    preds = fa.get_landmarks_from_directory(dataset_dir)
+
+    landmarks = [preds[key] for key in preds.keys()]
+    images = ["/".join(key.split("/")[1:]) for key in preds.keys()]
+    idx = [img_path.split("/")[0] for img_path in images]
+    video = [img_path.split("/")[1] for img_path in images]
+    image = [img_path.split("/")[2] for img_path in images]
+    df = pd.DataFrame({'idx': idx, 'video': video, 'image': image, 'path': images, 'landmarks': landmarks})
+    df.to_csv(csv_path)
+
 
 def video_to_frames(input_loc, output_loc, skip_frames=15):
     """Function to extract frames from input video file
@@ -46,22 +65,22 @@ def video_to_frames(input_loc, output_loc, skip_frames=15):
         if not ret:
             continue
         # Write the results back to output location.
-        cv2.imwrite(output_loc + "/%#05d.jpg" % (count+1), frame)
-        if count%skip_frames != 0:
-            os.remove(output_loc + "/%#05d.jpg" % (count+1))
+        cv2.imwrite(output_loc + "/%#05d.jpg" % (count + 1), frame)
+        if count % skip_frames != 0:
+            os.remove(output_loc + "/%#05d.jpg" % (count + 1))
         count = count + 1
 
         # If there are no more frames left
-        if (count > (video_length-1)):
+        if (count > (video_length - 1)):
             # Log the time again
             time_end = time.time()
             # Release the feed
             cap.release()
             # Print stats
-            print ("Done extracting frames.\n%d frames extracted" % count)
-            print ("It took %d seconds forconversion." % (time_end-time_start))
+            print("Done extracting frames.\n%d frames extracted" % count)
+            print("It took %d seconds forconversion." % (time_end - time_start))
             break
 
 
-if __name__=='__main__':
-    preprocess('/home/starc/SBU/Sem-1/CV/Project/sample/')
+if __name__ == '__main__':
+    preprocess('/home/starc/SBU/Sem-1/CV/Project/sample/', 'landmarks.csv')
