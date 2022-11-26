@@ -15,22 +15,22 @@ def preprocess(dataset_dir, csv_path):
         temp = [os.path.join(dataset_dir, idx, vid) for vid in temp]
         videos += temp
 
-    for video_path in tqdm(videos):
-        video_to_frames(video_path, video_path.split('.')[0])
+    #for video_path in tqdm(videos):
+        #video_to_frames(video_path, video_path.split('.')[0])
 
     extract_landmarks(dataset_dir, csv_path)
 
 
 def extract_landmarks(dataset_dir, csv_path):
     fa = face_alignment.FaceAlignment(face_alignment.LandmarksType._2D, flip_input=False)
-
+    print("starting prediction")
     preds = fa.get_landmarks_from_directory(dataset_dir)
-
-    landmarks = [preds[key] for key in preds.keys()]
-    images = ["/".join(key.split("/")[1:]) for key in preds.keys()]
-    idx = [img_path.split("/")[0] for img_path in images]
-    video = [img_path.split("/")[1] for img_path in images]
-    image = [img_path.split("/")[2] for img_path in images]
+    print("completed preditcion")
+    landmarks = [[preds[key][0].tolist()] for key in preds.keys()]
+    images = [key for key in preds.keys()]
+    idx = [img_path.split("/")[1] for img_path in images]
+    video = [img_path.split("/")[2] for img_path in images]
+    image = [img_path.split("/")[3] for img_path in images]
     df = pd.DataFrame({'idx': idx, 'video': video, 'image': image, 'path': images, 'landmarks': landmarks})
     df.to_csv(csv_path)
 
@@ -83,4 +83,4 @@ def video_to_frames(input_loc, output_loc, skip_frames=15):
 
 
 if __name__ == '__main__':
-    preprocess('/home/starc/SBU/Sem-1/CV/Project/sample/', 'landmarks.csv')
+    preprocess('/scratch/tan/fraction/', '/scratch/tan/landmarks.csv')
