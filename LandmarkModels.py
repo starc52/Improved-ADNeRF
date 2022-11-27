@@ -16,7 +16,6 @@ class LandmarkEncoder(nn.Module):
 
         self.linear4_eye = nn.Linear(in_features=128, out_features=embedding_size)
         self.linear4_mouth = nn.Linear(in_features=128, out_features=embedding_size)
-        self.lrelu4 = nn.LeakyReLU(negative_slope=0.02)
 
     def forward(self, landmarks):
         landmarks_flat = landmarks.view(-1, 68*2)
@@ -32,10 +31,8 @@ class LandmarkEncoder(nn.Module):
 
         x_eye = torch.clone(x)
         x_eye = self.linear4_eye(x_eye)
-        x_eye = self.lrelu4(x_eye)
 
         x_mouth = self.linear4_mouth(x)
-        x_mouth = self.lrelu4(x_mouth)
         return x_eye, x_mouth
 
 
@@ -52,7 +49,6 @@ class LandmarkDecoder(nn.Module):
         self.lrelu7 = nn.LeakyReLU(negative_slope=0.02)
 
         self.linear8 = nn.Linear(in_features=256, out_features=68 * 2)
-        self.lrelu8 = nn.LeakyReLU(negative_slope=0.02)
 
     def forward(self, eye_emb, mouth_emb):
 
@@ -68,7 +64,6 @@ class LandmarkDecoder(nn.Module):
         x = self.lrelu7(x)
 
         x = self.linear8(x)
-        x = self.lrelu8(x)
 
         pred = x.view(-1, 68, 2)
 
@@ -81,7 +76,7 @@ class LandmarkAutoencoder(nn.Module):
         self.switch_factor = switch_factor
         self.encoder = LandmarkEncoder(embedding_size=64)
         self.decoder = LandmarkDecoder(embedding_size=64)
-        self.pairwisedist = nn.PairwiseDistance(eps=0)
+        self.pairwisedist = nn.PairwiseDistance(p=1, eps=0)
 
     def forward(self, landmarks_a, landmarks_b):
 
