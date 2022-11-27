@@ -1,0 +1,167 @@
+2022-11-27 11:43:55,022 INFO    StreamThr :29600 [internal.py:wandb_internal():88] W&B internal server running at pid: 29600, started at: 2022-11-27 11:43:55.020986
+2022-11-27 11:43:55,024 DEBUG   HandlerThread:29600 [handler.py:handle_request():139] handle_request: status
+2022-11-27 11:43:55,028 DEBUG   SenderThread:29600 [sender.py:send_request():317] send_request: status
+2022-11-27 11:43:55,031 DEBUG   SenderThread:29600 [sender.py:send():303] send: header
+2022-11-27 11:43:55,031 INFO    WriterThread:29600 [datastore.py:open_for_write():75] open: /home2/nishant_sachdeva/tan/Improved-ADNeRF/wandb/run-20221127_114354-3m5dgwro/run-3m5dgwro.wandb
+2022-11-27 11:43:55,079 DEBUG   SenderThread:29600 [sender.py:send():303] send: run
+2022-11-27 11:43:55,818 DEBUG   HandlerThread:29600 [handler.py:handle_request():139] handle_request: check_version
+2022-11-27 11:43:55,872 INFO    SenderThread:29600 [dir_watcher.py:__init__():216] watching files in: /home2/nishant_sachdeva/tan/Improved-ADNeRF/wandb/run-20221127_114354-3m5dgwro/files
+2022-11-27 11:43:55,872 INFO    SenderThread:29600 [sender.py:_start_run_threads():928] run started: 3m5dgwro with start time 1669529634.998322
+2022-11-27 11:43:55,872 DEBUG   SenderThread:29600 [sender.py:send():303] send: summary
+2022-11-27 11:43:55,873 INFO    SenderThread:29600 [sender.py:_save_file():1171] saving file wandb-summary.json with policy end
+2022-11-27 11:43:55,874 DEBUG   SenderThread:29600 [sender.py:send_request():317] send_request: check_version
+2022-11-27 11:43:56,054 DEBUG   HandlerThread:29600 [handler.py:handle_request():139] handle_request: run_start
+2022-11-27 11:43:56,876 INFO    Thread-13 :29600 [dir_watcher.py:_on_file_created():275] file/dir created: /home2/nishant_sachdeva/tan/Improved-ADNeRF/wandb/run-20221127_114354-3m5dgwro/files/wandb-summary.json
+2022-11-27 11:43:57,617 DEBUG   HandlerThread:29600 [system_info.py:__init__():31] System info init
+2022-11-27 11:43:57,617 DEBUG   HandlerThread:29600 [system_info.py:__init__():46] System info init done
+2022-11-27 11:43:57,617 INFO    HandlerThread:29600 [system_monitor.py:start():150] Starting system monitor
+2022-11-27 11:43:57,617 INFO    SystemMonitor:29600 [system_monitor.py:_start():116] Starting system asset monitoring threads
+2022-11-27 11:43:57,618 INFO    HandlerThread:29600 [system_monitor.py:probe():168] Collecting system info
+2022-11-27 11:43:57,619 INFO    SystemMonitor:29600 [interfaces.py:start():168] Started cpu
+2022-11-27 11:43:57,619 INFO    SystemMonitor:29600 [interfaces.py:start():168] Started disk
+2022-11-27 11:43:57,621 INFO    SystemMonitor:29600 [interfaces.py:start():168] Started gpu
+2022-11-27 11:43:57,622 INFO    SystemMonitor:29600 [interfaces.py:start():168] Started memory
+2022-11-27 11:43:57,625 INFO    SystemMonitor:29600 [interfaces.py:start():168] Started network
+2022-11-27 11:43:57,665 DEBUG   HandlerThread:29600 [system_info.py:probe():195] Probing system
+2022-11-27 11:43:57,671 DEBUG   HandlerThread:29600 [system_info.py:_probe_git():180] Probing git
+2022-11-27 11:43:57,697 DEBUG   HandlerThread:29600 [system_info.py:_probe_git():188] Probing git done
+2022-11-27 11:43:57,697 DEBUG   HandlerThread:29600 [system_info.py:probe():241] Probing system done
+2022-11-27 11:43:57,697 DEBUG   HandlerThread:29600 [system_monitor.py:probe():177] {'os': 'Linux-4.15.0-194-generic-x86_64-with-glibc2.27', 'python': '3.9.13', 'heartbeatAt': '2022-11-27T06:13:57.665307', 'startedAt': '2022-11-27T06:13:54.977664', 'docker': None, 'cuda': None, 'args': (), 'state': 'running', 'program': '/home2/nishant_sachdeva/tan/Improved-ADNeRF/LandmarkMain.py', 'codePath': 'LandmarkMain.py', 'git': {'remote': 'https://github.com/starc52/Improved-ADNeRF.git', 'commit': '9b468aa72236797c0a3c7f7b85afef246f56f232'}, 'email': 'cstarpowful@gmail.com', 'root': '/home2/nishant_sachdeva/tan/Improved-ADNeRF', 'host': 'gnode054', 'username': 'nishant_sachdeva', 'executable': '/home2/nishant_sachdeva/miniconda3/envs/adnerf/bin/python', 'cpu_count': 20, 'cpu_count_logical': 40, 'cpu_freq': {'current': 1284.8268000000003, 'min': 1200.0, 'max': 3400.0}, 'cpu_freq_per_core': [{'current': 1475.27, 'min': 1200.0, 'max': 3400.0}, {'current': 1575.884, 'min': 1200.0, 'max': 3400.0}, {'current': 1202.926, 'min': 1200.0, 'max': 3400.0}, {'current': 1568.001, 'min': 1200.0, 'max': 3400.0}, {'current': 1203.155, 'min': 1200.0, 'max': 3400.0}, {'current': 1203.653, 'min': 1200.0, 'max': 3400.0}, {'current': 1203.103, 'min': 1200.0, 'max': 3400.0}, {'current': 1540.079, 'min': 1200.0, 'max': 3400.0}, {'current': 1202.942, 'min': 1200.0, 'max': 3400.0}, {'current': 1202.735, 'min': 1200.0, 'max': 3400.0}, {'current': 1203.12, 'min': 1200.0, 'max': 3400.0}, {'current': 1203.247, 'min': 1200.0, 'max': 3400.0}, {'current': 1203.192, 'min': 1200.0, 'max': 3400.0}, {'current': 1203.45, 'min': 1200.0, 'max': 3400.0}, {'current': 1202.757, 'min': 1200.0, 'max': 3400.0}, {'current': 1202.833, 'min': 1200.0, 'max': 3400.0}, {'current': 1202.993, 'min': 1200.0, 'max': 3400.0}, {'current': 1202.65, 'min': 1200.0, 'max': 3400.0}, {'current': 1203.171, 'min': 1200.0, 'max': 3400.0}, {'current': 1202.783, 'min': 1200.0, 'max': 3400.0}, {'current': 1476.965, 'min': 1200.0, 'max': 3400.0}, {'current': 1712.423, 'min': 1200.0, 'max': 3400.0}, {'current': 1201.296, 'min': 1200.0, 'max': 3400.0}, {'current': 1452.835, 'min': 1200.0, 'max': 3400.0}, {'current': 1200.752, 'min': 1200.0, 'max': 3400.0}, {'current': 1201.033, 'min': 1200.0, 'max': 3400.0}, {'current': 1201.777, 'min': 1200.0, 'max': 3400.0}, {'current': 2164.329, 'min': 1200.0, 'max': 3400.0}, {'current': 1201.019, 'min': 1200.0, 'max': 3400.0}, {'current': 1200.878, 'min': 1200.0, 'max': 3400.0}, {'current': 1201.713, 'min': 1200.0, 'max': 3400.0}, {'current': 1201.129, 'min': 1200.0, 'max': 3400.0}, {'current': 1200.941, 'min': 1200.0, 'max': 3400.0}, {'current': 1200.808, 'min': 1200.0, 'max': 3400.0}, {'current': 1201.546, 'min': 1200.0, 'max': 3400.0}, {'current': 1201.154, 'min': 1200.0, 'max': 3400.0}, {'current': 1200.877, 'min': 1200.0, 'max': 3400.0}, {'current': 1200.944, 'min': 1200.0, 'max': 3400.0}, {'current': 1201.212, 'min': 1200.0, 'max': 3400.0}, {'current': 1200.603, 'min': 1200.0, 'max': 3400.0}], 'disk': {'total': 219.00129318237305, 'used': 69.86240768432617}, 'gpu': 'NVIDIA GeForce RTX 2080 Ti', 'gpu_count': 2, 'gpu_devices': [{'name': 'NVIDIA GeForce RTX 2080 Ti', 'memory_total': 11811160064}, {'name': 'NVIDIA GeForce RTX 2080 Ti', 'memory_total': 11811160064}], 'memory': {'total': 125.78239822387695}}
+2022-11-27 11:43:57,698 INFO    HandlerThread:29600 [system_monitor.py:probe():178] Finished collecting system info
+2022-11-27 11:43:57,698 INFO    HandlerThread:29600 [system_monitor.py:probe():181] Publishing system info
+2022-11-27 11:43:57,698 DEBUG   HandlerThread:29600 [system_info.py:_save_pip():51] Saving list of pip packages installed into the current environment
+2022-11-27 11:43:57,700 DEBUG   HandlerThread:29600 [system_info.py:_save_pip():67] Saving pip packages done
+2022-11-27 11:43:57,700 DEBUG   HandlerThread:29600 [system_info.py:_save_conda():74] Saving list of conda packages installed into the current environment
+2022-11-27 11:43:57,880 INFO    Thread-13 :29600 [dir_watcher.py:_on_file_created():275] file/dir created: /home2/nishant_sachdeva/tan/Improved-ADNeRF/wandb/run-20221127_114354-3m5dgwro/files/requirements.txt
+2022-11-27 11:43:57,881 INFO    Thread-13 :29600 [dir_watcher.py:_on_file_created():275] file/dir created: /home2/nishant_sachdeva/tan/Improved-ADNeRF/wandb/run-20221127_114354-3m5dgwro/files/conda-environment.yaml
+2022-11-27 11:44:04,456 DEBUG   HandlerThread:29600 [system_info.py:_save_conda():86] Saving conda packages done
+2022-11-27 11:44:04,459 INFO    HandlerThread:29600 [system_monitor.py:probe():183] Finished publishing system info
+2022-11-27 11:44:04,886 INFO    Thread-13 :29600 [dir_watcher.py:_on_file_modified():292] file/dir modified: /home2/nishant_sachdeva/tan/Improved-ADNeRF/wandb/run-20221127_114354-3m5dgwro/files/conda-environment.yaml
+2022-11-27 11:44:04,887 INFO    Thread-13 :29600 [dir_watcher.py:_on_file_created():275] file/dir created: /home2/nishant_sachdeva/tan/Improved-ADNeRF/wandb/run-20221127_114354-3m5dgwro/files/wandb-metadata.json
+2022-11-27 11:44:04,937 DEBUG   HandlerThread:29600 [handler.py:handle_request():139] handle_request: stop_status
+2022-11-27 11:44:04,938 DEBUG   SenderThread:29600 [sender.py:send_request():317] send_request: stop_status
+2022-11-27 11:44:04,948 DEBUG   HandlerThread:29600 [handler.py:handle_request():139] handle_request: poll_exit
+2022-11-27 11:44:05,274 DEBUG   SenderThread:29600 [sender.py:send():303] send: telemetry
+2022-11-27 11:44:05,277 DEBUG   SenderThread:29600 [sender.py:send():303] send: exit
+2022-11-27 11:44:05,277 INFO    SenderThread:29600 [sender.py:send_exit():442] handling exit code: 1
+2022-11-27 11:44:05,278 INFO    SenderThread:29600 [sender.py:send_exit():444] handling runtime: 8
+2022-11-27 11:44:05,282 INFO    SenderThread:29600 [sender.py:_save_file():1171] saving file wandb-summary.json with policy end
+2022-11-27 11:44:05,283 INFO    SenderThread:29600 [sender.py:send_exit():450] send defer
+2022-11-27 11:44:05,283 DEBUG   SenderThread:29600 [sender.py:send_request():317] send_request: poll_exit
+2022-11-27 11:44:05,283 DEBUG   SenderThread:29600 [sender.py:send():303] send: files
+2022-11-27 11:44:05,284 INFO    SenderThread:29600 [sender.py:_save_file():1171] saving file wandb-metadata.json with policy now
+2022-11-27 11:44:05,284 DEBUG   HandlerThread:29600 [handler.py:handle_request():139] handle_request: defer
+2022-11-27 11:44:05,284 INFO    HandlerThread:29600 [handler.py:handle_request_defer():162] handle defer: 0
+2022-11-27 11:44:05,285 DEBUG   SenderThread:29600 [sender.py:send_request():317] send_request: defer
+2022-11-27 11:44:05,285 INFO    SenderThread:29600 [sender.py:send_request_defer():459] handle sender defer: 0
+2022-11-27 11:44:05,285 INFO    SenderThread:29600 [sender.py:transition_state():463] send defer: 1
+2022-11-27 11:44:05,286 DEBUG   HandlerThread:29600 [handler.py:handle_request():139] handle_request: defer
+2022-11-27 11:44:05,286 INFO    HandlerThread:29600 [handler.py:handle_request_defer():162] handle defer: 1
+2022-11-27 11:44:05,286 INFO    HandlerThread:29600 [system_monitor.py:finish():160] Stopping system monitor
+2022-11-27 11:44:05,287 DEBUG   SystemMonitor:29600 [system_monitor.py:_start():130] Starting system metrics aggregation loop
+2022-11-27 11:44:05,289 DEBUG   SystemMonitor:29600 [system_monitor.py:_start():137] Finished system metrics aggregation loop
+2022-11-27 11:44:05,289 DEBUG   SystemMonitor:29600 [system_monitor.py:_start():141] Publishing last batch of metrics
+2022-11-27 11:44:05,289 INFO    HandlerThread:29600 [interfaces.py:finish():173] Joined cpu
+2022-11-27 11:44:05,292 INFO    HandlerThread:29600 [interfaces.py:finish():173] Joined disk
+2022-11-27 11:44:05,412 INFO    HandlerThread:29600 [interfaces.py:finish():173] Joined gpu
+2022-11-27 11:44:05,413 INFO    HandlerThread:29600 [interfaces.py:finish():173] Joined memory
+2022-11-27 11:44:05,413 INFO    HandlerThread:29600 [interfaces.py:finish():173] Joined network
+2022-11-27 11:44:05,413 DEBUG   SenderThread:29600 [sender.py:send_request():317] send_request: defer
+2022-11-27 11:44:05,413 INFO    SenderThread:29600 [sender.py:send_request_defer():459] handle sender defer: 1
+2022-11-27 11:44:05,414 INFO    SenderThread:29600 [sender.py:transition_state():463] send defer: 2
+2022-11-27 11:44:05,414 DEBUG   SenderThread:29600 [sender.py:send():303] send: stats
+2022-11-27 11:44:05,415 DEBUG   HandlerThread:29600 [handler.py:handle_request():139] handle_request: defer
+2022-11-27 11:44:05,415 INFO    HandlerThread:29600 [handler.py:handle_request_defer():162] handle defer: 2
+2022-11-27 11:44:05,415 DEBUG   SenderThread:29600 [sender.py:send_request():317] send_request: defer
+2022-11-27 11:44:05,415 INFO    SenderThread:29600 [sender.py:send_request_defer():459] handle sender defer: 2
+2022-11-27 11:44:05,416 INFO    SenderThread:29600 [sender.py:transition_state():463] send defer: 3
+2022-11-27 11:44:05,416 DEBUG   HandlerThread:29600 [handler.py:handle_request():139] handle_request: defer
+2022-11-27 11:44:05,416 INFO    HandlerThread:29600 [handler.py:handle_request_defer():162] handle defer: 3
+2022-11-27 11:44:05,416 DEBUG   SenderThread:29600 [sender.py:send_request():317] send_request: defer
+2022-11-27 11:44:05,417 INFO    SenderThread:29600 [sender.py:send_request_defer():459] handle sender defer: 3
+2022-11-27 11:44:05,417 INFO    SenderThread:29600 [sender.py:transition_state():463] send defer: 4
+2022-11-27 11:44:05,417 DEBUG   HandlerThread:29600 [handler.py:handle_request():139] handle_request: defer
+2022-11-27 11:44:05,417 INFO    HandlerThread:29600 [handler.py:handle_request_defer():162] handle defer: 4
+2022-11-27 11:44:05,418 DEBUG   SenderThread:29600 [sender.py:send():303] send: summary
+2022-11-27 11:44:05,419 INFO    SenderThread:29600 [sender.py:_save_file():1171] saving file wandb-summary.json with policy end
+2022-11-27 11:44:05,420 DEBUG   SenderThread:29600 [sender.py:send_request():317] send_request: defer
+2022-11-27 11:44:05,420 INFO    SenderThread:29600 [sender.py:send_request_defer():459] handle sender defer: 4
+2022-11-27 11:44:05,420 INFO    SenderThread:29600 [sender.py:transition_state():463] send defer: 5
+2022-11-27 11:44:05,420 DEBUG   HandlerThread:29600 [handler.py:handle_request():139] handle_request: defer
+2022-11-27 11:44:05,421 INFO    HandlerThread:29600 [handler.py:handle_request_defer():162] handle defer: 5
+2022-11-27 11:44:05,421 DEBUG   SenderThread:29600 [sender.py:send_request():317] send_request: defer
+2022-11-27 11:44:05,421 INFO    SenderThread:29600 [sender.py:send_request_defer():459] handle sender defer: 5
+2022-11-27 11:44:05,807 INFO    SenderThread:29600 [sender.py:transition_state():463] send defer: 6
+2022-11-27 11:44:05,807 DEBUG   HandlerThread:29600 [handler.py:handle_request():139] handle_request: defer
+2022-11-27 11:44:05,808 INFO    HandlerThread:29600 [handler.py:handle_request_defer():162] handle defer: 6
+2022-11-27 11:44:05,808 DEBUG   SenderThread:29600 [sender.py:send_request():317] send_request: defer
+2022-11-27 11:44:05,808 INFO    SenderThread:29600 [sender.py:send_request_defer():459] handle sender defer: 6
+2022-11-27 11:44:05,888 INFO    Thread-13 :29600 [dir_watcher.py:_on_file_modified():292] file/dir modified: /home2/nishant_sachdeva/tan/Improved-ADNeRF/wandb/run-20221127_114354-3m5dgwro/files/wandb-summary.json
+2022-11-27 11:44:05,888 INFO    Thread-13 :29600 [dir_watcher.py:_on_file_modified():292] file/dir modified: /home2/nishant_sachdeva/tan/Improved-ADNeRF/wandb/run-20221127_114354-3m5dgwro/files/config.yaml
+2022-11-27 11:44:05,888 INFO    Thread-13 :29600 [dir_watcher.py:_on_file_created():275] file/dir created: /home2/nishant_sachdeva/tan/Improved-ADNeRF/wandb/run-20221127_114354-3m5dgwro/files/output.log
+2022-11-27 11:44:06,491 INFO    Thread-16 :29600 [upload_job.py:push():143] Uploaded file /tmp/tmp3eitea8cwandb/2nhjwcou-wandb-metadata.json
+2022-11-27 11:44:07,161 DEBUG   HandlerThread:29600 [handler.py:handle_request():139] handle_request: keepalive
+2022-11-27 11:44:07,288 INFO    SenderThread:29600 [sender.py:transition_state():463] send defer: 7
+2022-11-27 11:44:07,289 DEBUG   HandlerThread:29600 [handler.py:handle_request():139] handle_request: defer
+2022-11-27 11:44:07,290 INFO    HandlerThread:29600 [handler.py:handle_request_defer():162] handle defer: 7
+2022-11-27 11:44:07,290 DEBUG   SenderThread:29600 [sender.py:send_request():317] send_request: defer
+2022-11-27 11:44:07,290 INFO    SenderThread:29600 [sender.py:send_request_defer():459] handle sender defer: 7
+2022-11-27 11:44:07,290 INFO    SenderThread:29600 [dir_watcher.py:finish():362] shutting down directory watcher
+2022-11-27 11:44:07,891 INFO    SenderThread:29600 [dir_watcher.py:_on_file_modified():292] file/dir modified: /home2/nishant_sachdeva/tan/Improved-ADNeRF/wandb/run-20221127_114354-3m5dgwro/files/output.log
+2022-11-27 11:44:07,892 INFO    SenderThread:29600 [dir_watcher.py:finish():392] scan: /home2/nishant_sachdeva/tan/Improved-ADNeRF/wandb/run-20221127_114354-3m5dgwro/files
+2022-11-27 11:44:07,892 INFO    SenderThread:29600 [dir_watcher.py:finish():406] scan save: /home2/nishant_sachdeva/tan/Improved-ADNeRF/wandb/run-20221127_114354-3m5dgwro/files/wandb-summary.json wandb-summary.json
+2022-11-27 11:44:07,893 INFO    SenderThread:29600 [dir_watcher.py:finish():406] scan save: /home2/nishant_sachdeva/tan/Improved-ADNeRF/wandb/run-20221127_114354-3m5dgwro/files/conda-environment.yaml conda-environment.yaml
+2022-11-27 11:44:07,898 INFO    SenderThread:29600 [dir_watcher.py:finish():406] scan save: /home2/nishant_sachdeva/tan/Improved-ADNeRF/wandb/run-20221127_114354-3m5dgwro/files/wandb-metadata.json wandb-metadata.json
+2022-11-27 11:44:07,899 INFO    SenderThread:29600 [dir_watcher.py:finish():406] scan save: /home2/nishant_sachdeva/tan/Improved-ADNeRF/wandb/run-20221127_114354-3m5dgwro/files/requirements.txt requirements.txt
+2022-11-27 11:44:07,905 INFO    SenderThread:29600 [dir_watcher.py:finish():406] scan save: /home2/nishant_sachdeva/tan/Improved-ADNeRF/wandb/run-20221127_114354-3m5dgwro/files/config.yaml config.yaml
+2022-11-27 11:44:07,913 INFO    SenderThread:29600 [dir_watcher.py:finish():406] scan save: /home2/nishant_sachdeva/tan/Improved-ADNeRF/wandb/run-20221127_114354-3m5dgwro/files/output.log output.log
+2022-11-27 11:44:07,920 INFO    SenderThread:29600 [sender.py:transition_state():463] send defer: 8
+2022-11-27 11:44:07,921 DEBUG   HandlerThread:29600 [handler.py:handle_request():139] handle_request: defer
+2022-11-27 11:44:07,921 INFO    HandlerThread:29600 [handler.py:handle_request_defer():162] handle defer: 8
+2022-11-27 11:44:07,926 DEBUG   SenderThread:29600 [sender.py:send_request():317] send_request: defer
+2022-11-27 11:44:07,926 INFO    SenderThread:29600 [sender.py:send_request_defer():459] handle sender defer: 8
+2022-11-27 11:44:07,927 INFO    SenderThread:29600 [file_pusher.py:finish():168] shutting down file pusher
+2022-11-27 11:44:08,840 INFO    Thread-20 :29600 [upload_job.py:push():143] Uploaded file /home2/nishant_sachdeva/tan/Improved-ADNeRF/wandb/run-20221127_114354-3m5dgwro/files/config.yaml
+2022-11-27 11:44:08,858 INFO    Thread-19 :29600 [upload_job.py:push():143] Uploaded file /home2/nishant_sachdeva/tan/Improved-ADNeRF/wandb/run-20221127_114354-3m5dgwro/files/requirements.txt
+2022-11-27 11:44:08,880 INFO    Thread-18 :29600 [upload_job.py:push():143] Uploaded file /home2/nishant_sachdeva/tan/Improved-ADNeRF/wandb/run-20221127_114354-3m5dgwro/files/conda-environment.yaml
+2022-11-27 11:44:08,900 INFO    Thread-17 :29600 [upload_job.py:push():143] Uploaded file /home2/nishant_sachdeva/tan/Improved-ADNeRF/wandb/run-20221127_114354-3m5dgwro/files/wandb-summary.json
+2022-11-27 11:44:08,900 INFO    Thread-21 :29600 [upload_job.py:push():143] Uploaded file /home2/nishant_sachdeva/tan/Improved-ADNeRF/wandb/run-20221127_114354-3m5dgwro/files/output.log
+2022-11-27 11:44:09,101 INFO    Thread-12 :29600 [sender.py:transition_state():463] send defer: 9
+2022-11-27 11:44:09,102 DEBUG   HandlerThread:29600 [handler.py:handle_request():139] handle_request: defer
+2022-11-27 11:44:09,102 INFO    HandlerThread:29600 [handler.py:handle_request_defer():162] handle defer: 9
+2022-11-27 11:44:09,102 DEBUG   SenderThread:29600 [sender.py:send_request():317] send_request: defer
+2022-11-27 11:44:09,102 INFO    SenderThread:29600 [sender.py:send_request_defer():459] handle sender defer: 9
+2022-11-27 11:44:09,102 INFO    SenderThread:29600 [file_pusher.py:join():173] waiting for file pusher
+2022-11-27 11:44:09,103 INFO    SenderThread:29600 [sender.py:transition_state():463] send defer: 10
+2022-11-27 11:44:09,103 DEBUG   HandlerThread:29600 [handler.py:handle_request():139] handle_request: defer
+2022-11-27 11:44:09,103 INFO    HandlerThread:29600 [handler.py:handle_request_defer():162] handle defer: 10
+2022-11-27 11:44:09,104 DEBUG   SenderThread:29600 [sender.py:send_request():317] send_request: defer
+2022-11-27 11:44:09,104 INFO    SenderThread:29600 [sender.py:send_request_defer():459] handle sender defer: 10
+2022-11-27 11:44:09,380 INFO    SenderThread:29600 [sender.py:transition_state():463] send defer: 11
+2022-11-27 11:44:09,381 DEBUG   HandlerThread:29600 [handler.py:handle_request():139] handle_request: defer
+2022-11-27 11:44:09,381 INFO    HandlerThread:29600 [handler.py:handle_request_defer():162] handle defer: 11
+2022-11-27 11:44:09,381 DEBUG   SenderThread:29600 [sender.py:send_request():317] send_request: defer
+2022-11-27 11:44:09,381 INFO    SenderThread:29600 [sender.py:send_request_defer():459] handle sender defer: 11
+2022-11-27 11:44:09,382 INFO    SenderThread:29600 [sender.py:transition_state():463] send defer: 12
+2022-11-27 11:44:09,383 DEBUG   HandlerThread:29600 [handler.py:handle_request():139] handle_request: defer
+2022-11-27 11:44:09,383 DEBUG   SenderThread:29600 [sender.py:send():303] send: final
+2022-11-27 11:44:09,383 INFO    HandlerThread:29600 [handler.py:handle_request_defer():162] handle defer: 12
+2022-11-27 11:44:09,383 DEBUG   SenderThread:29600 [sender.py:send():303] send: footer
+2022-11-27 11:44:09,384 DEBUG   SenderThread:29600 [sender.py:send_request():317] send_request: defer
+2022-11-27 11:44:09,384 INFO    SenderThread:29600 [sender.py:send_request_defer():459] handle sender defer: 12
+2022-11-27 11:44:09,385 DEBUG   HandlerThread:29600 [handler.py:handle_request():139] handle_request: poll_exit
+2022-11-27 11:44:09,386 DEBUG   SenderThread:29600 [sender.py:send_request():317] send_request: poll_exit
+2022-11-27 11:44:09,387 DEBUG   HandlerThread:29600 [handler.py:handle_request():139] handle_request: server_info
+2022-11-27 11:44:09,387 DEBUG   SenderThread:29600 [sender.py:send_request():317] send_request: server_info
+2022-11-27 11:44:09,393 DEBUG   HandlerThread:29600 [handler.py:handle_request():139] handle_request: get_summary
+2022-11-27 11:44:09,394 DEBUG   HandlerThread:29600 [handler.py:handle_request():139] handle_request: sampled_history
+2022-11-27 11:44:10,043 INFO    MainThread:29600 [wandb_run.py:_footer_history_summary_info():3377] rendering history
+2022-11-27 11:44:10,043 INFO    MainThread:29600 [wandb_run.py:_footer_history_summary_info():3409] rendering summary
+2022-11-27 11:44:10,043 INFO    MainThread:29600 [wandb_run.py:_footer_sync_info():3333] logging synced files
+2022-11-27 11:44:10,044 DEBUG   HandlerThread:29600 [handler.py:handle_request():139] handle_request: shutdown
+2022-11-27 11:44:10,045 INFO    HandlerThread:29600 [handler.py:finish():814] shutting down handler
+2022-11-27 11:44:10,383 INFO    WriterThread:29600 [datastore.py:close():279] close: /home2/nishant_sachdeva/tan/Improved-ADNeRF/wandb/run-20221127_114354-3m5dgwro/run-3m5dgwro.wandb
+2022-11-27 11:44:11,043 INFO    SenderThread:29600 [sender.py:finish():1331] shutting down sender
+2022-11-27 11:44:11,043 INFO    SenderThread:29600 [file_pusher.py:finish():168] shutting down file pusher
+2022-11-27 11:44:11,043 INFO    SenderThread:29600 [file_pusher.py:join():173] waiting for file pusher
+2022-11-27 11:44:11,048 INFO    MainThread:29600 [internal.py:handle_exit():78] Internal process exited

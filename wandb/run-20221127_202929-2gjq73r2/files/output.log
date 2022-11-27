@@ -1,0 +1,6 @@
+Traceback (most recent call last):
+  File "/home2/nishant_sachdeva/tan/Improved-ADNeRF/LandmarkMain.py", line 31, in <module>
+    model = LandmarkAutoencoder(switch_factor)
+  File "/home2/nishant_sachdeva/tan/Improved-ADNeRF/LandmarkModels.py", line 80, in __init__
+    super().__init__(self)
+TypeError: __init__() takes 1 positional argument but 2 were given

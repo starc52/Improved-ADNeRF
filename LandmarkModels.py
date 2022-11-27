@@ -4,7 +4,7 @@ import torch.nn as nn
 
 class LandmarkEncoder(nn.Module):
     def __init__(self, embedding_size):
-        super().__init__(self)
+        super().__init__()
         self.linear1 = nn.Linear(in_features=68*2, out_features=256)
         self.lrelu1 = nn.LeakyReLU(negative_slope=0.02)
 
@@ -41,7 +41,7 @@ class LandmarkEncoder(nn.Module):
 
 class LandmarkDecoder(nn.Module):
     def __init__(self, embedding_size):
-        super().__init__(self)
+        super().__init__()
         self.linear5 = nn.Linear(in_features=2*embedding_size, out_features=256)
         self.lrelu5 = nn.LeakyReLU(negative_slope=0.02)
 
@@ -77,7 +77,7 @@ class LandmarkDecoder(nn.Module):
 
 class LandmarkAutoencoder(nn.Module):
     def __init__(self, switch_factor):
-        super().__init__(self)
+        super().__init__()
         self.switch_factor = switch_factor
         self.encoder = LandmarkEncoder(embedding_size=64)
         self.decoder = LandmarkDecoder(embedding_size=64)

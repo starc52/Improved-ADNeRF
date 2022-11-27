@@ -1,0 +1,18 @@
+Traceback (most recent call last):
+  File "/home2/nishant_sachdeva/tan/Improved-ADNeRF/LandmarkMain.py", line 22, in <module>
+    train_landmarks_dataset = FaceLandmarksDataset(csv_file='/scratch/tan/train_landmarks.csv')
+  File "/home2/nishant_sachdeva/tan/Improved-ADNeRF/LandmarkDataset.py", line 18, in __init__
+    self.landmarks_frame = pd.read_csv(csv_file, na_filter=True, na_values='[]')
+  File "/home2/nishant_sachdeva/miniconda3/envs/adnerf/lib/python3.9/site-packages/pandas/util/_decorators.py", line 311, in wrapper
+    return func(*args, **kwargs)
+  File "/home2/nishant_sachdeva/miniconda3/envs/adnerf/lib/python3.9/site-packages/pandas/io/parsers/readers.py", line 678, in read_csv
+    return _read(filepath_or_buffer, kwds)
+  File "/home2/nishant_sachdeva/miniconda3/envs/adnerf/lib/python3.9/site-packages/pandas/io/parsers/readers.py", line 575, in _read
+    parser = TextFileReader(filepath_or_buffer, **kwds)
+  File "/home2/nishant_sachdeva/miniconda3/envs/adnerf/lib/python3.9/site-packages/pandas/io/parsers/readers.py", line 932, in __init__
+    self._engine = self._make_engine(f, self.engine)
+  File "/home2/nishant_sachdeva/miniconda3/envs/adnerf/lib/python3.9/site-packages/pandas/io/parsers/readers.py", line 1216, in _make_engine
+    self.handles = get_handle(  # type: ignore[call-overload]
+  File "/home2/nishant_sachdeva/miniconda3/envs/adnerf/lib/python3.9/site-packages/pandas/io/common.py", line 786, in get_handle
+    handle = open(
+FileNotFoundError: [Errno 2] No such file or directory: '/scratch/tan/train_landmarks.csv'

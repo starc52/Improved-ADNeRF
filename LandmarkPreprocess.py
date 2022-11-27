@@ -26,6 +26,13 @@ def extract_landmarks(dataset_dir, csv_path):
     print("starting prediction")
     preds = fa.get_landmarks_from_directory(dataset_dir)
     print("completed preditcion")
+    
+    keys = list(preds.keys())
+    
+    for key in keys:
+        if preds[key] is None or len(preds[key])==0:
+            preds.pop(key, 'No Key Found')
+
     landmarks = [[preds[key][0].tolist()] for key in preds.keys()]
     images = [key for key in preds.keys()]
     idx = [img_path.split("/")[1] for img_path in images]

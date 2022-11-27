@@ -15,7 +15,7 @@ class FaceLandmarksDataset(Dataset):
             image_dim (int): size of images.
         """
         self.image_dim = image_dim
-        self.landmarks_frame = pd.read_csv(csv_file, na_filter=True, na_values='[]')
+        self.landmarks_frame = pd.read_csv(csv_file, index_col=0, na_filter=True, na_values='[]')
         self.landmarks_frame.dropna()
 
     def __len__(self):
