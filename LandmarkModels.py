@@ -97,16 +97,23 @@ class LandmarkAutoencoder(nn.Module):
             landmarks_b_new = torch.clone(landmarks_b)
 
             for idx, val in enumerate(switch):
-                if val[0]==1:
+                if val[0] == 1:
                     landmarks_a_new[idx, 48:, :] = landmarks_b[idx, 48:, :]
                     landmarks_b_new[idx, 48:, :] = landmarks_a[idx, 48:, :]
 
-            l2_loss_a = self.pairwisedist(landmarks_a_new, pred_a)
-            l2_loss_b = self.pairwisedist(landmarks_b_new, pred_b)
-            print(l2_loss_b.size())
+            batch_p_a=[]
+            batch_p_b=[]
+            for ele in range(pred_a.size(0)):
+                batch_p_a.append(self.pairwisedist(landmarks_a_new[ele], pred_a[ele]))
+                batch_p_b.append(self.pairwisedist(landmarks_b_new[ele], pred_b[ele]))
+            l1_loss_a = torch.vstack(batch_p_a)
+            l1_loss_b = torch.vstack(batch_p_b)
 
-            recon_loss_a = torch.mean(torch.sum(l2_loss_a, dim=1))
-            recon_loss_b = torch.mean(torch.sum(l2_loss_b, dim=1))
+            # l2_loss_a = self.pairwisedist(landmarks_a_new, pred_a)
+            # l2_loss_b = self.pairwisedist(landmarks_b_new, pred_b)
+
+            recon_loss_a = torch.mean(torch.sum(l1_loss_a, dim=1))
+            recon_loss_b = torch.mean(torch.sum(l1_loss_b, dim=1))
 
             return recon_loss_a, recon_loss_b, recon_loss_a+recon_loss_b, pred_a, pred_b, landmarks_a_new, landmarks_b_new
 
