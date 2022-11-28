@@ -79,7 +79,7 @@ class LandmarkAutoencoder(nn.Module):
         self.decoder = LandmarkDecoder(embedding_size=64)
         self.pairwisedist = nn.PairwiseDistance(p=1, eps=0)
 
-    def forward(self, landmarks_a, landmarks_b):
+    def forward(self, landmarks_a, landmarks_b=None):
         if landmarks_a is not None and landmarks_b is not None:
             eye_emb_a, mouth_emb_a = self.encoder(landmarks_a)
             eye_emb_b, mouth_emb_b = self.encoder(landmarks_b)
