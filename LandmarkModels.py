@@ -2,6 +2,7 @@ import torch
 import torch.nn as nn
 
 
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 class LandmarkEncoder(nn.Module):
     def __init__(self, embedding_size):
         super().__init__()
@@ -79,26 +80,33 @@ class LandmarkAutoencoder(nn.Module):
         self.pairwisedist = nn.PairwiseDistance(p=1, eps=0)
 
     def forward(self, landmarks_a, landmarks_b):
-
+        
         eye_emb_a, mouth_emb_a = self.encoder(landmarks_a)
         eye_emb_b, mouth_emb_b = self.encoder(landmarks_b)
 
-        switch = torch.randint(low=0, high=2, size=(landmarks_a.size(0),))
-
+        switch = torch.randint(low=0, high=2, size=(landmarks_a.size(0),)).to(device)
+        switch = torch.unsqueeze(switch, dim=1)
+        
         x_mouth_a_switch = torch.where(switch == 1, mouth_emb_b, mouth_emb_a)
         x_mouth_b_switch = torch.where(switch == 1, mouth_emb_a, mouth_emb_b)
 
         pred_a = self.decoder(eye_emb_a, x_mouth_a_switch)
         pred_b = self.decoder(eye_emb_b, x_mouth_b_switch)
 
-        temp_land = torch.clone(landmarks_a)
-        landmarks_a[:, 48:, :] = torch.where(switch == 1, landmarks_b[:, 48:, :], landmarks_a[:, 48:, :])
-        landmarks_b[:, 48:, :] = torch.where(switch == 1, temp_land[:, 48:, :], landmarks_b[:, 48:, :])
 
-        l2_loss_a = self.pairwisedist(landmarks_a, pred_a)
-        l2_loss_b = self.pairwisedist(landmarks_b, pred_b)
+        
+        landmarks_a_new = torch.clone(landmarks_a)
+        landmarks_b_new = torch.clone(landmarks_b)
+
+        for idx, val in enumerate(switch):
+            if val[0]==1:
+                landmarks_a_new[idx, 48:, :] = landmarks_b[idx, 48:, :]
+                landmarks_b_new[idx, 48:, :] = landmarks_a[idx, 48:, :]
+
+        l2_loss_a = self.pairwisedist(landmarks_a_new, pred_a)
+        l2_loss_b = self.pairwisedist(landmarks_b_new, pred_b)
 
         recon_loss_a = torch.mean(torch.sum(l2_loss_a, dim=1))
         recon_loss_b = torch.mean(torch.sum(l2_loss_b, dim=1))
 
-        return recon_loss_a, recon_loss_b, recon_loss_a+recon_loss_b
+        return recon_loss_a, recon_loss_b, recon_loss_a+recon_loss_b, pred_a, pred_b, landmarks_a_new, landmarks_b_new

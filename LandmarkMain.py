@@ -5,12 +5,13 @@ from LandmarkModels import LandmarkEncoder, LandmarkDecoder, LandmarkAutoencoder
 import copy
 import time
 import wandb
+from tqdm import tqdm
 wandb.init(project="Landmark-Disentangler")
 
 batch_size = 256
-num_epochs = 10
+num_epochs = 4
 switch_factor = 0.8
-weight_decay = 1e-3
+weight_decay = 1e-5
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 wandb.config={"batch_size":batch_size,
@@ -22,16 +23,18 @@ wandb.config={"batch_size":batch_size,
 train_landmarks_dataset = FaceLandmarksDataset(csv_file='/scratch/tan/train_landmarks.csv')
 val_landmarks_dataset = FaceLandmarksDataset(csv_file='/scratch/tan/val_landmarks.csv')
 
-dataset_sizes = {'train': len(train_landmarks_dataset), 'val':val_landmarks_dataset}
-train_dataloader = torch.utils.data.DataLoader(train_landmarks_dataset, batch_size=256, shuffle=True, num_workers=10)
-val_dataloader = torch.utils.data.DataLoader(val_landmarks_dataset, batch_size=256, shuffle=True, num_workers=10)
+dataset_sizes = {'train': len(train_landmarks_dataset), 'val':len(val_landmarks_dataset)}
+train_dataloader = torch.utils.data.DataLoader(train_landmarks_dataset, batch_size=batch_size, shuffle=True, num_workers=15)
+val_dataloader = torch.utils.data.DataLoader(val_landmarks_dataset, batch_size=batch_size, shuffle=True, num_workers=15)
 
 dataloaders = {'train':train_dataloader, 'val': val_dataloader}
 
-model = LandmarkAutoencoder(switch_factor)
-optimizer = torch.optim.Adam(model.parameters(), weight_decay=1e-3)
+model = LandmarkAutoencoder(switch_factor).to(device)
+optimizer = torch.optim.Adam(model.parameters(), weight_decay=weight_decay)
 since = time.time()
-for epoch in range(num_epochs):
+wandb.watch(model)
+best_loss=1e10
+for epoch in tqdm(range(num_epochs)):
     print(f'Epoch {epoch}/{num_epochs - 1}')
     print('-' * 10)
     for phase in ['train', 'val']:
@@ -44,7 +47,7 @@ for epoch in range(num_epochs):
         running_corrects = 0
 
         # Iterate over data.
-        for landmarks_a, landmarks_b in dataloaders[phase]:
+        for landmarks_a, landmarks_b in tqdm(dataloaders[phase]):
             landmarks_a = landmarks_a.to(device)
             landmarks_b = landmarks_b.to(device)
 
@@ -54,15 +57,18 @@ for epoch in range(num_epochs):
             # forward
             # track history if only in train
             with torch.set_grad_enabled(phase == 'train'):
-                loss_a, loss_b, loss = model(landmarks_a, landmarks_b)
+                loss_a, loss_b, loss, pred_a, pred_b, landmarks_a_new, landmarks_b_new = model(landmarks_a, landmarks_b)
                 # backward + optimize only if in training phase
+                wandb.log({"step_loss_a": loss_a, 
+                           "step_loss_b": loss_b, "step_loss":loss})
+                
                 if phase == 'train':
                     loss.backward()
                     optimizer.step()
 
             # statistics
             running_loss += loss * landmarks_a.size(0)
-
+        wandb.log({"landmarks_a_new":landmarks_a_new, "pred_a":pred_a})
         epoch_loss = running_loss / dataset_sizes[phase]
         print(f'{phase} Loss: {epoch_loss:.4f}')
         wandb.log({phase+"_loss": epoch_loss})
