@@ -103,6 +103,7 @@ class LandmarkAutoencoder(nn.Module):
 
             l2_loss_a = self.pairwisedist(landmarks_a_new, pred_a)
             l2_loss_b = self.pairwisedist(landmarks_b_new, pred_b)
+            print(l2_loss_b.size())
 
             recon_loss_a = torch.mean(torch.sum(l2_loss_a, dim=1))
             recon_loss_b = torch.mean(torch.sum(l2_loss_b, dim=1))
