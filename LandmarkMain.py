@@ -12,6 +12,7 @@ batch_size = 256
 num_epochs = 4
 switch_factor = 0.8
 weight_decay = 1e-5
+embedding_size=76
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 wandb.config={"batch_size":batch_size,
@@ -29,7 +30,7 @@ val_dataloader = torch.utils.data.DataLoader(val_landmarks_dataset, batch_size=b
 
 dataloaders = {'train':train_dataloader, 'val': val_dataloader}
 
-model = LandmarkAutoencoder(switch_factor).to(device)
+model = LandmarkAutoencoder(switch_factor, embedding_size).to(device)
 optimizer = torch.optim.Adam(model.parameters(), weight_decay=weight_decay)
 since = time.time()
 wandb.watch(model)

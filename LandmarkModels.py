@@ -72,11 +72,11 @@ class LandmarkDecoder(nn.Module):
 
 
 class LandmarkAutoencoder(nn.Module):
-    def __init__(self, switch_factor):
+    def __init__(self, switch_factor, embedding_size):
         super().__init__()
         self.switch_factor = switch_factor
-        self.encoder = LandmarkEncoder(embedding_size=64)
-        self.decoder = LandmarkDecoder(embedding_size=64)
+        self.encoder = LandmarkEncoder(embedding_size=embedding_size)
+        self.decoder = LandmarkDecoder(embedding_size=embedding_size)
         self.pairwisedist = nn.PairwiseDistance(p=1, eps=0)
 
     def forward(self, landmarks_a, landmarks_b=None):
@@ -84,8 +84,9 @@ class LandmarkAutoencoder(nn.Module):
             eye_emb_a, mouth_emb_a = self.encoder(landmarks_a)
             eye_emb_b, mouth_emb_b = self.encoder(landmarks_b)
 
-            switch = torch.randint(low=0, high=2, size=(landmarks_a.size(0),)).to(device)
+            switch = self.switch_factor*torch.ones(size=(landmarks_a.size(0),)).to(device)
             switch = torch.unsqueeze(switch, dim=1)
+            switch = torch.bernoulli(switch)
 
             x_mouth_a_switch = torch.where(switch == 1, mouth_emb_b, mouth_emb_a)
             x_mouth_b_switch = torch.where(switch == 1, mouth_emb_a, mouth_emb_b)
