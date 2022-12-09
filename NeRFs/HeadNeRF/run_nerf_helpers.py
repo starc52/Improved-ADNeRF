@@ -136,7 +136,7 @@ class AudioNet(nn.Module):
         x = x[:, 8-half_w:8+half_w, :].permute(0, 2, 1)
         x = self.encoder_conv(x).squeeze(-1)
         x = self.encoder_fc1(x).squeeze()
-        return x
+        return x  # n x 76
 # Model
 
 

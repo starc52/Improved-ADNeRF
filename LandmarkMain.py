@@ -12,7 +12,7 @@ batch_size = 256
 num_epochs = 4
 switch_factor = 0.8
 weight_decay = 1e-5
-embedding_size=76
+embedding_size = 64
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 wandb.config={"batch_size":batch_size,

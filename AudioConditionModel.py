@@ -1,12 +1,13 @@
 import torch
 import torch.nn as nn
-from NeRFs.HeadNeRF.run_nerf_helpers import AudioNet
+from NeRFs.HeadNeRF.run_nerf_helpers import AudioNet, AudioAttNet
 from LandmarkModels import LandmarkAutoencoder, LandmarkEncoder
 
 
 class AudioConditioned(nn.Module):
     def __init__(self, audnet_state=None, landmarkenc_state=None, audnet_trainable=False, landmarkenc_trainable=False):
         self.audionet = AudioNet()
+        self.audioattnet = AudioAttNet()
         self.landmark_encoder = LandmarkEncoder()
         self.cos_dist = nn.CosineSimilarity()
         if audnet_state is not None:

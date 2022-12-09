@@ -1,12 +1,13 @@
 import torch
 import torch.nn as nn
 
-
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+
 class LandmarkEncoder(nn.Module):
     def __init__(self, embedding_size):
         super().__init__()
-        self.linear1 = nn.Linear(in_features=68*2, out_features=256)
+        self.linear1 = nn.Linear(in_features=68 * 2, out_features=256)
         self.lrelu1 = nn.LeakyReLU(negative_slope=0.02)
 
         self.linear2 = nn.Linear(in_features=256, out_features=256)
@@ -19,7 +20,7 @@ class LandmarkEncoder(nn.Module):
         self.linear4_mouth = nn.Linear(in_features=128, out_features=embedding_size)
 
     def forward(self, landmarks):
-        landmarks_flat = landmarks.view(-1, 68*2)
+        landmarks_flat = landmarks.view(-1, 68 * 2)
 
         x = self.linear1(landmarks_flat)
         x = self.lrelu1(x)
@@ -40,7 +41,7 @@ class LandmarkEncoder(nn.Module):
 class LandmarkDecoder(nn.Module):
     def __init__(self, embedding_size):
         super().__init__()
-        self.linear5 = nn.Linear(in_features=2*embedding_size, out_features=256)
+        self.linear5 = nn.Linear(in_features=2 * embedding_size, out_features=256)
         self.lrelu5 = nn.LeakyReLU(negative_slope=0.02)
 
         self.linear6 = nn.Linear(in_features=256, out_features=256)
@@ -52,7 +53,6 @@ class LandmarkDecoder(nn.Module):
         self.linear8 = nn.Linear(in_features=256, out_features=68 * 2)
 
     def forward(self, eye_emb, mouth_emb):
-
         x = torch.cat((eye_emb, mouth_emb), dim=1)
 
         x = self.linear5(x)
@@ -84,7 +84,7 @@ class LandmarkAutoencoder(nn.Module):
             eye_emb_a, mouth_emb_a = self.encoder(landmarks_a)
             eye_emb_b, mouth_emb_b = self.encoder(landmarks_b)
 
-            switch = self.switch_factor*torch.ones(size=(landmarks_a.size(0),)).to(device)
+            switch = self.switch_factor * torch.ones(size=(landmarks_a.size(0),)).to(device)
             switch = torch.unsqueeze(switch, dim=1)
             switch = torch.bernoulli(switch)
 
@@ -102,8 +102,8 @@ class LandmarkAutoencoder(nn.Module):
                     landmarks_a_new[idx, 48:, :] = landmarks_b[idx, 48:, :]
                     landmarks_b_new[idx, 48:, :] = landmarks_a[idx, 48:, :]
 
-            batch_p_a=[]
-            batch_p_b=[]
+            batch_p_a = []
+            batch_p_b = []
             for ele in range(pred_a.size(0)):
                 batch_p_a.append(self.pairwisedist(landmarks_a_new[ele], pred_a[ele]))
                 batch_p_b.append(self.pairwisedist(landmarks_b_new[ele], pred_b[ele]))
@@ -116,10 +116,10 @@ class LandmarkAutoencoder(nn.Module):
             recon_loss_a = torch.mean(torch.sum(l1_loss_a, dim=1))
             recon_loss_b = torch.mean(torch.sum(l1_loss_b, dim=1))
 
-            return recon_loss_a, recon_loss_b, recon_loss_a+recon_loss_b, pred_a, pred_b, landmarks_a_new, landmarks_b_new
+            return recon_loss_a, recon_loss_b, recon_loss_a + recon_loss_b, pred_a, pred_b, landmarks_a_new, \
+                   landmarks_b_new
 
         elif landmarks_a is not None:
             eye_emb_a, mouth_emb_a = self.encoder(landmarks_a)
             pred_a = self.decoder(eye_emb_a, mouth_emb_a)
-            return pred_a
-
+            return eye_emb_a, mouth_emb_a, pred_a
