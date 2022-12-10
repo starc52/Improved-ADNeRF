@@ -10,7 +10,7 @@ from tqdm import tqdm
 
 # wandb.init(project="Audio-Conditioning")
 
-batch_size = 256
+batch_size = 128
 num_epochs = 4
 switch_factor = 0.8
 weight_decay = 1e-5
