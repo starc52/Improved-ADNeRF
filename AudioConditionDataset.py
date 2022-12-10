@@ -18,8 +18,6 @@ class AudioConditionDataset(Dataset):
         self.image_dim = image_dim
         self.smooth_win = smooth_win
         self.landmarks_frame = pd.read_csv(csv_file, index_col=0)
-        self.landmarks_frame = self.landmarks_frame[(self.landmarks_frame['idx'] == 'id00755') | (
-                    self.landmarks_frame['idx'] == 'id01973')]  # remove this comment after testing
 
     def __len__(self):
         return len(self.landmarks_frame)
@@ -54,7 +52,7 @@ class AudioConditionDataset(Dataset):
                 (auds_pos, torch.zeros_like(auds_pos)[:pad_right]), dim=0)
 
         sample_indice = list(range(audio_feat.shape[0]))
-        removal_indice = range(max(0, frame_id - 8), min(frame_id + 8, audio_feat.shape[0] - 1))
+        removal_indice = range(max(0, frame_id - 7), min(frame_id + 7, audio_feat.shape[0] - 1))
         for index in removal_indice:
             sample_indice.remove(index)
         neg_index = random.choice(sample_indice)
