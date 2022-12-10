@@ -62,8 +62,8 @@ for epoch in tqdm(range(num_epochs)):
 
         # Iterate over data.
         for audio_features, landmarks in tqdm(dataloaders[phase]):
-            audio_features = audio_features.to(device)
-            landmarks = landmarks.to(device)
+            audio_features = audio_features
+            landmarks = landmarks
 
             # zero the parameter gradients
             optimizer.zero_grad()

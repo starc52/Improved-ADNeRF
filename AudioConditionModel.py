@@ -3,6 +3,8 @@ import torch.nn as nn
 from NeRFs.HeadNeRF.run_nerf_helpers import AudioNet, AudioAttNet
 from LandmarkModels import LandmarkAutoencoder, LandmarkEncoder
 
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
 
 class AudioConditionModel(nn.Module):
     def __init__(self, audnet_state=None,
@@ -46,13 +48,13 @@ class AudioConditionModel(nn.Module):
                 param.requires_grad = True
 
     def forward(self, audio_features, landmarks):
-        pos_audio_features = audio_features['pos']
-        pos_landmarks = landmarks['pos']
+        pos_audio_features = audio_features['pos'].to(device)
+        pos_landmarks = landmarks['pos'].to(device)
         pos_audio_embs = self.audioattnnet(self.audionet(pos_audio_features))
         pos_eye_embs, pos_mouth_embs = self.landmark_encoder(pos_landmarks)
 
-        neg_audio_features = audio_features['neg']
-        neg_landmarks = landmarks['neg']
+        neg_audio_features = audio_features['neg'].to(device)
+        neg_landmarks = landmarks['neg'].to(device)
         neg_audio_embs = self.audioattnnet(self.audionet(neg_audio_features))
         neg_eye_embs, neg_mouth_embs = self.landmark_encoder(neg_landmarks)
 
