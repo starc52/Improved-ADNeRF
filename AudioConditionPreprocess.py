@@ -20,12 +20,17 @@ def extract_audio_features(id_path):
 def video_to_audio_features(csv_path):
     df = pd.read_csv(csv_path, index_col=0)
     idxs = df['idx'].unique()
-    for idx in tqdm(idxs[:10]):
+    uniq_vid_paths = []
+    for idx in tqdm(idxs[:1]):  # remove [:1] from here after testing
         idx_df = df[df['idx'] == idx]
         idx_path = '/'.join(idx_df.iloc[0]['path'].split('/')[:-2])
-        for row in idx_df.iterrows():
+        for index, row in idx_df.iterrows():
             video_path = '/'.join(row['path'].split('/')[:-1])+'.mp4'
-            extract_audio(video_path)
+            audio_path = video_path[:-3]+'wav'
+            if video_path not in uniq_vid_paths and not os.path.isfile(audio_path):
+                extract_audio(video_path)
+                uniq_vid_paths.append(video_path)
+            
         extract_audio_features(idx_path)
 
 
