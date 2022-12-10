@@ -53,6 +53,7 @@ class AudioConditionModel(nn.Module):
         pos_audio_embs = self.audioattnnet(self.audionet(torch.squeeze(pos_audio_features, dim=0)))
         pos_audio_embs = torch.unsqueeze(pos_audio_embs, dim=0)
         pos_eye_embs, pos_mouth_embs = self.landmark_encoder(pos_landmarks)
+        print(pos_mouth_embs.size())
 
         neg_audio_features = audio_features['neg'].to(device)
         neg_landmarks = landmarks['neg'].to(device)
