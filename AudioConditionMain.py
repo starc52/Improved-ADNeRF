@@ -40,13 +40,16 @@ dataloaders = {'train': train_dataloader, 'val': val_dataloader}
 
 landmark_autoencoder_state = torch.load('./best_autoencoder.pt')
 autoencoder = LandmarkAutoencoder(switch_factor=0.8, embedding_size=64)
-landmark_encoder_state=autoencoder.encoder.state_dict()
+landmark_encoder_state = autoencoder.encoder.state_dict()
 
 model = AudioConditionModel(landmarkenc_state=landmark_encoder_state, audnet_trainable=True).to(device)
-optimizer = torch.optim.Adam(model.parameters(), weight_decay=weight_decay)
+lrate_decay = 250
+lrate = 5e-4
+optimizer = torch.optim.Adam(model.parameters(), lr=lrate, weight_decay=weight_decay)
 since = time.time()
 wandb.watch(model)
 best_loss = 1e10
+global_step = 0
 for epoch in tqdm(range(num_epochs)):
     print(f'Epoch {epoch}/{num_epochs - 1}')
     print('-' * 10)
@@ -80,6 +83,13 @@ for epoch in tqdm(range(num_epochs)):
 
             # statistics
             running_loss += contrastive_loss * landmarks['pos'].size(0)
+            if phase == 'train':
+                decay_rate = 0.1
+                decay_steps = lrate_decay * 1000
+                new_lrate = lrate * (decay_rate ** (global_step / decay_steps))
+                for param_group in optimizer.param_groups:
+                    param_group['lr'] = new_lrate
+                global_step += 1
         epoch_loss = running_loss / dataset_sizes[phase]
         print(f'{phase} Loss: {epoch_loss:.4f}')
         wandb.log({phase + "_loss": epoch_loss})
