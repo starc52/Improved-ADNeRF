@@ -600,6 +600,8 @@ def config_parser():
                         help="far sampling plane")
     parser.add_argument("--test_file", type=str, default='transforms_test.json',
                         help='test file')
+    parser.add_argument("--test_rof_file", type=str, default='rof_mean.npy',
+                        help='test rest-of-face embedding mean saved as npy')
     parser.add_argument("--aud_file", type=str, default='aud.npy',
                         help='test audio deepspeech file')
     parser.add_argument("--win_size", type=int, default=16,
@@ -645,13 +647,13 @@ def train():
 
     if args.dataset_type == 'audface':
         if args.with_test == 1:
-            poses, auds, bc_img, hwfcxy = \
-                load_audface_data(args.datadir, args.testskip,
-                                  args.test_file, args.aud_file)
+            poses, auds, bc_img, hwfcxy, rof_emb = \
+                load_audface_data(basedir=args.datadir, testskip=args.testskip,
+                                  test_file=args.test_file, test_rof_file=args.test_rof_file, aud_file=args.aud_file)
             images = np.zeros(1)
         else:
             images, poses, auds, bc_img, hwfcxy, sample_rects, mouth_rects, i_split = load_audface_data(
-                args.datadir, args.testskip)
+                basedir=args.datadir, testskip=args.testskip)
         print('Loaded audface', images.shape, hwfcxy, args.datadir)
         if args.with_test == 0:
             i_train, i_val = i_split
@@ -824,6 +826,7 @@ def train():
                 aud_smo = AudAttNet(auds_win)
             else:
                 aud = AudNet(aud.unsqueeze(0))
+
             if N_rand is not None:
                 rays_o, rays_d = get_rays(
                     H, W, focal, torch.Tensor(pose), cx, cy)  # (H, W, 3), (H, W, 3)

@@ -154,7 +154,7 @@ class FaceNeRF(nn.Module):
         self.skips = skips
         self.use_viewdirs = use_viewdirs
 
-        input_ch_all = input_ch + dim_aud
+        input_ch_all = input_ch + dim_aud + dim_aud
         self.pts_linears = nn.ModuleList(
             [nn.Linear(input_ch_all, W)] + [nn.Linear(W, W) if i not in self.skips else nn.Linear(W + input_ch_all, W) for i in range(D-1)])
 
@@ -175,7 +175,7 @@ class FaceNeRF(nn.Module):
 
     def forward(self, x):
         input_pts, input_views = torch.split(
-            x, [self.input_ch+self.dim_aud, self.input_ch_views], dim=-1)
+            x, [self.input_ch+self.dim_aud+self.dim_aud, self.input_ch_views], dim=-1)
         h = input_pts
         for i, l in enumerate(self.pts_linears):
             h = self.pts_linears[i](h)
