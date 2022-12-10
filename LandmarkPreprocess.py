@@ -36,10 +36,11 @@ def extract_landmarks(dataset_dir, csv_path):
 
     landmarks = [[preds[key][0].tolist()] for key in preds.keys()]
     images = [key for key in preds.keys()]
-    idx = [img_path.split("/")[1] for img_path in images]
-    video = [img_path.split("/")[2] for img_path in images]
-    image = [img_path.split("/")[3] for img_path in images]
+    idx = [img_path.split("/")[4] for img_path in images]
+    video = [img_path.split("/")[5] for img_path in images]
+    image = [img_path.split("/")[6] for img_path in images]
     df = pd.DataFrame({'idx': idx, 'video': video, 'image': image, 'path': images, 'landmarks': landmarks})
+    print("delete rows with indices: ", df.groupby(['idx', 'video']).count().gt(1)[df.groupby(['idx', 'video']).count().gt(1)['image']==False])
     df.to_csv(csv_path)
 
 
