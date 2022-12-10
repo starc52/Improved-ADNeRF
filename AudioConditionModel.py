@@ -14,7 +14,7 @@ class AudioConditionModel(nn.Module):
                  landmarkenc_trainable=False,
                  eps=1e-5):
         super(AudioConditionModel, self).__init__()
-        self.audionet = AudioNet()
+        self.audionet = AudioNet(dim_aud=64)
         self.audioattnnet = AudioAttNet()
         self.landmark_encoder = LandmarkEncoder()
         self.cos_dist = nn.CosineSimilarity(dim=1)
