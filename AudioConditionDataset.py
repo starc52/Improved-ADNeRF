@@ -54,7 +54,7 @@ class AudioConditionDataset(Dataset):
                 (auds_pos, torch.zeros_like(auds_pos)[:pad_right]), dim=0)
 
         sample_indice = list(range(audio_feat.shape[0]))
-        removal_indice = range(max(0, frame_id - 8), min(frame_id + 8, audio_feat.shape[0] - 1))
+        removal_indice = range(max(0, frame_id - 7), min(frame_id + 7, audio_feat.shape[0] - 1))
         for index in removal_indice:
             sample_indice.remove(index)
         neg_index = random.choice(sample_indice)
