@@ -5,7 +5,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
 class LandmarkEncoder(nn.Module):
-    def __init__(self, embedding_size):
+    def __init__(self, embedding_size=64):
         super().__init__()
         self.linear1 = nn.Linear(in_features=68 * 2, out_features=256)
         self.lrelu1 = nn.LeakyReLU(negative_slope=0.02)
@@ -39,7 +39,7 @@ class LandmarkEncoder(nn.Module):
 
 
 class LandmarkDecoder(nn.Module):
-    def __init__(self, embedding_size):
+    def __init__(self, embedding_size=64):
         super().__init__()
         self.linear5 = nn.Linear(in_features=2 * embedding_size, out_features=256)
         self.lrelu5 = nn.LeakyReLU(negative_slope=0.02)
