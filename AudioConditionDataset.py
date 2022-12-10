@@ -18,6 +18,8 @@ class AudioConditionDataset(Dataset):
         self.image_dim = image_dim
         self.smooth_win = smooth_win
         self.landmarks_frame = pd.read_csv(csv_file, index_col=0)
+        self.landmarks_frame = self.landmarks_frame[(self.landmarks_frame['idx'] == 'id00755') | (
+                    self.landmarks_frame['idx'] == 'id01973')]  # remove this comment after testing
 
     def __len__(self):
         return len(self.landmarks_frame)
