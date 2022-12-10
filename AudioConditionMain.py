@@ -10,9 +10,8 @@ from tqdm import tqdm
 
 # wandb.init(project="Audio-Conditioning")
 
-batch_size = 128
+batch_size = 1
 num_epochs = 4
-switch_factor = 0.8
 weight_decay = 1e-5
 embedding_size = 64
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")

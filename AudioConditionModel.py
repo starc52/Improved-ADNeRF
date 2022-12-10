@@ -17,7 +17,7 @@ class AudioConditionModel(nn.Module):
         self.audionet = AudioNet()
         self.audioattnnet = AudioAttNet()
         self.landmark_encoder = LandmarkEncoder()
-        self.cos_dist = nn.CosineSimilarity()
+        self.cos_dist = nn.CosineSimilarity(dim=1)
         self.eps = eps
 
         if audnet_state is not None:
@@ -50,12 +50,14 @@ class AudioConditionModel(nn.Module):
     def forward(self, audio_features, landmarks):
         pos_audio_features = audio_features['pos'].to(device)
         pos_landmarks = landmarks['pos'].to(device)
-        pos_audio_embs = self.audioattnnet(self.audionet(pos_audio_features))
+        pos_audio_embs = self.audioattnnet(self.audionet(torch.squeeze(pos_audio_features, dim=0)))
+        pos_audio_embs = torch.unsqueeze(pos_audio_embs, dim=0)
         pos_eye_embs, pos_mouth_embs = self.landmark_encoder(pos_landmarks)
 
         neg_audio_features = audio_features['neg'].to(device)
         neg_landmarks = landmarks['neg'].to(device)
-        neg_audio_embs = self.audioattnnet(self.audionet(neg_audio_features))
+        neg_audio_embs = self.audioattnnet(self.audionet(torch.squeeze(neg_audio_features, dim=0)))
+        neg_audio_embs = torch.unsqueeze(neg_audio_embs, dim=0)
         neg_eye_embs, neg_mouth_embs = self.landmark_encoder(neg_landmarks)
 
         contrastive_loss = -torch.sum(torch.log(self.cos_dist(pos_audio_embs, pos_mouth_embs) + self.eps)) - \
