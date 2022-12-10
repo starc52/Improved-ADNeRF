@@ -28,7 +28,7 @@ class AudioConditionDataset(Dataset):
         if torch.is_tensor(idx):
             idx = idx.tolist()
         exact_row = self.landmarks_frame.iloc[idx]
-        landmarks_a = torch.from_numpy(np.array(eval(exact_row['landmarks']))) / self.image_dim
+        landmarks_a = torch.from_numpy(np.array(eval(exact_row['landmarks'])).astype(np.float32)) / self.image_dim
 
         frame_id = int(exact_row['image'].split('.')[0]) - 1
         audio_feat_path = '/'.join(exact_row['path'].split('/')[:-1]) + '.npy'
