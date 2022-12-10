@@ -4,14 +4,14 @@ from NeRFs.HeadNeRF.run_nerf_helpers import AudioNet, AudioAttNet
 from LandmarkModels import LandmarkAutoencoder, LandmarkEncoder
 
 
-class AudioConditioned(nn.Module):
+class AudioConditionModel(nn.Module):
     def __init__(self, audnet_state=None,
                  audattnnet_state=None,
                  landmarkenc_state=None,
                  audnet_trainable=False,
                  landmarkenc_trainable=False,
                  eps=1e-5):
-        super(AudioConditioned, self).__init__()
+        super(AudioConditionModel, self).__init__()
         self.audionet = AudioNet()
         self.audioattnnet = AudioAttNet()
         self.landmark_encoder = LandmarkEncoder()
@@ -56,6 +56,6 @@ class AudioConditioned(nn.Module):
         neg_audio_embs = self.audioattnnet(self.audionet(neg_audio_features))
         neg_eye_embs, neg_mouth_embs = self.landmark_encoder(neg_landmarks)
 
-        contrastiveLoss = -torch.sum(torch.log(self.cos_dist(pos_audio_embs, pos_mouth_embs)+self.eps)) - \
-                          torch.sum(torch.log(1 - self.cos_dist(neg_audio_embs, neg_mouth_embs)+self.eps))
-        return contrastiveLoss
+        contrastive_loss = -torch.sum(torch.log(self.cos_dist(pos_audio_embs, pos_mouth_embs) + self.eps)) - \
+                          torch.sum(torch.log(1 - self.cos_dist(neg_audio_embs, neg_mouth_embs) + self.eps))
+        return contrastive_loss

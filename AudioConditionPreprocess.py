@@ -4,7 +4,6 @@ import pandas as pd
 
 
 def extract_audio(video_path):
-    print('--- Step0: extract deepspeech feature ---')
     video_name = video_path.split('/')[-1]
     id_path = '/'.join(video_path.split('/')[:-1])
     wav_file = os.path.join(id_path, video_name[:-3]+'wav')
