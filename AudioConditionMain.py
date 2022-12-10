@@ -1,5 +1,6 @@
 import torch
 from torch.utils.data import Dataset
+from LandmarkModels import LandmarkAutoencoder, LandmarkEncoder
 from AudioConditionDataset import AudioConditionDataset
 from AudioConditionModel import AudioConditionModel
 import copy
@@ -38,7 +39,11 @@ val_dataloader = torch.utils.data.DataLoader(val_audcond_dataset,
 
 dataloaders = {'train': train_dataloader, 'val': val_dataloader}
 
-model = AudioConditionModel(audnet_trainable=True).to(device)
+landmark_autoencoder_state = torch.load('best_autoencoder.pt')
+autoencoder = LandmarkAutoencoder(switch_factor=0.8, embedding_size=64)
+landmark_encoder_state=autoencoder.encoder.state_dict()
+
+model = AudioConditionModel(landmarkenc_state =landmark_encoder_state, audnet_trainable=True).to(device)
 optimizer = torch.optim.Adam(model.parameters(), weight_decay=weight_decay)
 since = time.time()
 # wandb.watch(model)
