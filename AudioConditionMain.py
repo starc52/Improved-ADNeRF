@@ -8,7 +8,7 @@ import time
 import wandb
 from tqdm import tqdm
 
-# wandb.init(project="Audio-Conditioning")
+wandb.init(project="Audio-Conditioning")
 
 batch_size = 1
 num_epochs = 4
@@ -16,11 +16,11 @@ weight_decay = 1e-5
 embedding_size = 64
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-# wandb.config = {"batch_size": batch_size,
-#                 "epochs": num_epochs,
-#                 "switch_factor": switch_factor,
-#                 "weight_decay": weight_decay,
-#                 }
+wandb.config = {"batch_size": batch_size,
+                "epochs": num_epochs,
+                "switch_factor": switch_factor,
+                "weight_decay": weight_decay,
+                }
 
 train_audcond_dataset = AudioConditionDataset(csv_file='/scratch/tan/train_landmarks.csv')
 val_audcond_dataset = AudioConditionDataset(csv_file='/scratch/tan/val_landmarks.csv')
@@ -45,7 +45,7 @@ landmark_encoder_state=autoencoder.encoder.state_dict()
 model = AudioConditionModel(landmarkenc_state=landmark_encoder_state, audnet_trainable=True).to(device)
 optimizer = torch.optim.Adam(model.parameters(), weight_decay=weight_decay)
 since = time.time()
-# wandb.watch(model)
+wandb.watch(model)
 best_loss = 1e10
 for epoch in tqdm(range(num_epochs)):
     print(f'Epoch {epoch}/{num_epochs - 1}')
@@ -72,7 +72,7 @@ for epoch in tqdm(range(num_epochs)):
             with torch.set_grad_enabled(phase == 'train'):
                 contrastive_loss = model(audio_features, landmarks)
                 # backward + optimize only if in training phase
-                # wandb.log({"contrastive_loss": contrastive_loss})
+                wandb.log({"contrastive_loss": contrastive_loss})
 
                 if phase == 'train':
                     contrastive_loss.backward()
@@ -82,7 +82,7 @@ for epoch in tqdm(range(num_epochs)):
             running_loss += contrastive_loss * landmarks['pos'].size(0)
         epoch_loss = running_loss / dataset_sizes[phase]
         print(f'{phase} Loss: {epoch_loss:.4f}')
-        # wandb.log({phase + "_loss": epoch_loss})
+        wandb.log({phase + "_loss": epoch_loss})
 
         # deep copy the model
         if phase == 'val' and epoch_loss < best_loss:
