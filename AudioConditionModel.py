@@ -113,8 +113,8 @@ class AudioConditionModel(nn.Module):
 
         negative_key_emb = negative_key.to(device)
         negative_key_emb = self.audionet(negative_key_emb)
-        torch.unsqueeze(negative_key_emb, dim=1)
-
+        negative_key_emb = torch.unsqueeze(negative_key_emb, dim=1)
+        
         contrastive_loss = self.info_nce(query_mouth_embs, positive_key_emb, negative_key_emb, negative_mode='paired')
         # #print("pos_eye_embs", pos_eye_embs)
         # #print("pos_mouth_embs", pos_mouth_embs)

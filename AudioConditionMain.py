@@ -10,13 +10,13 @@ from tqdm import tqdm
 
 wandb.init(project="Audio-Conditioning")
 
-batch_size = 32
+batch_size = 1024
 accumulation = 1
-num_epochs = 4
+num_epochs = 10
 weight_decay = 1e-5
 embedding_size = 64
 lrate_decay = 250
-lrate = 5e-4
+lrate = 1e-3
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -35,11 +35,11 @@ dataset_sizes = {'train': len(train_audcond_dataset), 'val': len(val_audcond_dat
 train_dataloader = torch.utils.data.DataLoader(train_audcond_dataset,
                                                batch_size=batch_size,
                                                shuffle=True,
-                                               num_workers=1)
+                                               num_workers=2)
 val_dataloader = torch.utils.data.DataLoader(val_audcond_dataset,
                                              batch_size=batch_size,
                                              shuffle=True,
-                                             num_workers=1)
+                                             num_workers=2)
 
 dataloaders = {'train': train_dataloader, 'val': val_dataloader}
 
@@ -47,10 +47,10 @@ landmark_autoencoder_state = torch.load('./best_autoencoder.pt')
 autoencoder = LandmarkAutoencoder(switch_factor=0.8, embedding_size=64)
 landmark_encoder_state = autoencoder.encoder.state_dict()
 
-model = AudioConditionModel(landmarkenc_state=landmark_encoder_state, audnet_trainable=True).to(device)
+model = AudioConditionModel(landmarkenc_state=landmark_encoder_state, landmarkenc_trainable=False, audnet_trainable=True).to(device)
 optimizer = torch.optim.Adam(model.parameters(), lr=lrate, weight_decay=weight_decay)
 since = time.time()
-wandb.watch(model)
+wandb.watch(model, log_freq = 100)
 best_loss = 1e10
 global_step = 0
 epoch_loss = {'train': 0.0, 'val': 0.0}
@@ -95,7 +95,7 @@ for epoch in tqdm(range(num_epochs)):
 
             if phase == 'train':
                 decay_rate = 0.1
-                decay_steps = lrate_decay * 1000
+                decay_steps = lrate_decay 
                 new_lrate = lrate * (decay_rate ** (global_step / decay_steps))
                 for param_group in optimizer.param_groups:
                     param_group['lr'] = new_lrate
