@@ -23,7 +23,7 @@ def load_audface_data(basedir, testskip=1, test_file=None, test_rof_file=None, a
         H, W = bc_img.shape[0], bc_img.shape[1]
         focal, cx, cy = float(meta['focal_length']), float(
             meta['cx']), float(meta['cy'])
-        rof_emb = np.load(test_rof_file).astype(np.float32)
+        rof_emb = torch.load(os.path.join(basedir, test_rof_file))
         return poses, auds, bc_img, [H, W, focal, cx, cy], rof_emb
 
     splits = ['train', 'val']
@@ -35,6 +35,7 @@ def load_audface_data(basedir, testskip=1, test_file=None, test_rof_file=None, a
     all_poses = []
     all_auds = []
     all_sample_rects = []
+    all_lms = []
     aud_features = np.load(os.path.join(basedir, 'aud.npy'))
     counts = [0]
     for s in splits:
@@ -42,6 +43,7 @@ def load_audface_data(basedir, testskip=1, test_file=None, test_rof_file=None, a
         imgs = []
         poses = []
         auds = []
+        lms = []
         sample_rects = []
         mouth_rects = []
         #exps = []
@@ -53,6 +55,9 @@ def load_audface_data(basedir, testskip=1, test_file=None, test_rof_file=None, a
         for frame in meta['frames'][::skip]:
             fname = os.path.join(basedir, 'head_imgs',
                                  str(frame['img_id']) + '.jpg')
+            lmname = os.path.join(basedir, 'ori_imgs',
+                                 str(frame['img_id']) + '.lms')
+            lms.append(lmname)
             imgs.append(fname)
             poses.append(np.array(frame['transform_matrix']))
             auds.append(
@@ -65,12 +70,14 @@ def load_audface_data(basedir, testskip=1, test_file=None, test_rof_file=None, a
         all_imgs.append(imgs)
         all_poses.append(poses)
         all_auds.append(auds)
+        all_lms.append(lms)
         all_sample_rects.append(sample_rects)
 
     i_split = [np.arange(counts[i], counts[i+1]) for i in range(len(splits))]
     imgs = np.concatenate(all_imgs, 0)
     poses = np.concatenate(all_poses, 0)
     auds = np.concatenate(all_auds, 0)
+    lms = np.concatenate(all_lms, 0)
     sample_rects = np.concatenate(all_sample_rects, 0)
 
     bc_img = imageio.imread(os.path.join(basedir, 'bc.jpg'))
@@ -79,4 +86,4 @@ def load_audface_data(basedir, testskip=1, test_file=None, test_rof_file=None, a
     focal, cx, cy = float(meta['focal_len']), float(
         meta['cx']), float(meta['cy'])
 
-    return imgs, poses, auds, bc_img, [H, W, focal, cx, cy], sample_rects, sample_rects, i_split
+    return imgs, poses, auds, lms, bc_img, [H, W, focal, cx, cy], sample_rects, sample_rects, i_split

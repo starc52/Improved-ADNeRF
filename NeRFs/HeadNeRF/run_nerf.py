@@ -13,6 +13,11 @@ from tqdm import tqdm, trange
 from natsort import natsorted
 from run_nerf_helpers import *
 
+dir_path = os.path.dirname(os.path.realpath(__file__))
+sys.path.append(os.path.abspath(os.path.join(dir_path, os.pardir, os.pardir)))
+
+from AudioConditionModel import AudioConditionModel
+from LandmarkModels import LandmarkEncoder
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 np.random.seed(0)
@@ -284,6 +289,7 @@ def create_nerf(args):
     AudAttNet_state = None
     optimizer_aud_state = None
     optimizer_audatt_state = None
+    aud_cond_state = None
     if len(ckpts) > 0 and not args.no_reload:
         ckpt_path = ckpts[-1]
         print('Reloading from', ckpt_path)
@@ -303,6 +309,8 @@ def create_nerf(args):
         if 'optimize_audatt_state_dict' in ckpt:
             optimizer_audatt_state = ckpt['optimize_audatt_state_dict']
 
+    if args.load_aud_cond:
+        aud_cond_state = torch.load(args.load_aud_cond)
     ##########################
 
     render_kwargs_train = {
@@ -328,7 +336,7 @@ def create_nerf(args):
     render_kwargs_test['perturb'] = False
     render_kwargs_test['raw_noise_std'] = 0.
     return render_kwargs_train, render_kwargs_test, start, grad_vars, optimizer, learned_codes_dict, \
-        AudNet_state, optimizer_aud_state, AudAttNet_state, optimizer_audatt_state
+        AudNet_state, optimizer_aud_state, AudAttNet_state, optimizer_audatt_state, aud_cond_state
 
 
 def raw2outputs(raw, z_vals, rays_d, bc_rgb, raw_noise_std=0, white_bkgd=False, pytest=False):
@@ -539,6 +547,9 @@ def config_parser():
                         help='specific weights npy file to reload for coarse network')
     parser.add_argument("--N_iters", type=int, default=400000,
                         help='number of iterations')
+    # args.load_aud_cond
+    parser.add_argument("--load_aud_cond", type=str, default=None,
+                        help='load from audcond model')
 
     # rendering options
     parser.add_argument("--N_samples", type=int, default=64,
@@ -600,7 +611,7 @@ def config_parser():
                         help="far sampling plane")
     parser.add_argument("--test_file", type=str, default='transforms_test.json',
                         help='test file')
-    parser.add_argument("--test_rof_file", type=str, default='rof_mean.npy',
+    parser.add_argument("--test_rof_file", type=str, default='rof_mean.tar',
                         help='test rest-of-face embedding mean saved as npy')
     parser.add_argument("--aud_file", type=str, default='aud.npy',
                         help='test audio deepspeech file')
@@ -652,7 +663,7 @@ def train():
                                   test_file=args.test_file, test_rof_file=args.test_rof_file, aud_file=args.aud_file)
             images = np.zeros(1)
         else:
-            images, poses, auds, bc_img, hwfcxy, sample_rects, mouth_rects, i_split = load_audface_data(
+            images, poses, auds, lms, bc_img, hwfcxy, sample_rects, mouth_rects, i_split = load_audface_data(
                 basedir=args.datadir, testskip=args.testskip)
         print('Loaded audface', images.shape, hwfcxy, args.datadir)
         if args.with_test == 0:
@@ -689,12 +700,14 @@ def train():
 
     # Create nerf model
     render_kwargs_train, render_kwargs_test, start, grad_vars, optimizer, \
-        learned_codes, AudNet_state, optimizer_aud_state, AudAttNet_state, optimizer_audatt_state \
+        learned_codes, AudNet_state, optimizer_aud_state, AudAttNet_state, optimizer_audatt_state, aud_cond_state \
         = create_nerf(args)
     global_step = start
 
     AudNet = AudioNet(args.dim_aud, args.win_size).to(device)
     AudAttNet = AudioAttNet().to(device)
+    aud_cond_model = AudioConditionModel().to(device)
+    landmark_encoder = LandmarkEncoder().to(device)
     optimizer_Aud = torch.optim.Adam(
         params=list(AudNet.parameters()), lr=args.lrate, betas=(0.9, 0.999))
     optimizer_AudAtt = torch.optim.Adam(
@@ -708,6 +721,10 @@ def train():
         AudAttNet.load_state_dict(AudAttNet_state, strict=False)
     if optimizer_audatt_state is not None:
         optimizer_AudAtt.load_state_dict(optimizer_audatt_state)
+    if aud_cond_state is not None:
+        aud_cond_model.load_state_dict(aud_cond_state)
+        landmark_encoder.load_state_dict(aud_cond_model.landmark_encoder.state_dict())
+        AudNet.load_state_dict(aud_cond_model.audionet.state_dict())
     bds_dict = {
         'near': near,
         'far': far,
@@ -719,7 +736,8 @@ def train():
     bc_img = torch.Tensor(bc_img).to(device).float()/255.0
     poses = torch.Tensor(poses).to(device).float()
     auds = torch.Tensor(auds).to(device).float()
-
+    rof_count = 0
+    rof_mean = torch.zeros(1, 64)
     if args.render_only:
         print('RENDER ONLY')
         with torch.no_grad():
@@ -730,6 +748,10 @@ def train():
             os.makedirs(testsavedir, exist_ok=True)
             print('test poses shape', poses.shape)
             auds_val = AudNet(auds)
+
+            rof_embs = torch.cat([rof_emb]*auds.size(0), 0)
+            auds_val = torch.cat([auds_val, rof_embs], 1)
+
             rgbs, disp, last_weight = render_path(poses, auds_val, bc_img, hwfcxy, args.chunk, render_kwargs_test,
                                                   gt_imgs=images, savedir=testsavedir, render_factor=args.render_factor)
             np.save(os.path.join(testsavedir, 'last_weight.npy'), last_weight)
@@ -800,9 +822,15 @@ def train():
             target = torch.as_tensor(imageio.imread(
                 images[img_i])).to(device).float()/255.0
             pose = poses[img_i, :3, :4]
+            lm = torch.as_tensor(np.loadtxt(lms[img_i]).astype(np.float32)).to(device)
+            lm = lm/target.size(0)
             rect = sample_rects[img_i]
             mouth_rect = mouth_rects[img_i]
             aud = auds[img_i]
+            rof_emb, mouth_emb = landmark_encoder(lm)
+            rof_mean = (rof_count*rof_mean)+rof_emb
+            rof_count += 1
+            rof_mean /= rof_count
             if global_step >= args.nosmo_iters:
                 smo_half_win = int(args.smo_size / 2)
                 left_i = img_i - smo_half_win
@@ -824,8 +852,10 @@ def train():
                 auds_win = AudNet(auds_win)
                 aud = auds_win[smo_half_win]
                 aud_smo = AudAttNet(auds_win)
+                aud_smo = torch.cat([aud_smo, rof_emb], 1)
             else:
                 aud = AudNet(aud.unsqueeze(0))
+                aud = torch.cat([aud, rof_emb], 1)
 
             if N_rand is not None:
                 rays_o, rays_d = get_rays(
@@ -943,6 +973,8 @@ def train():
                 'optimizer_audatt_state_dict': optimizer_AudAtt.state_dict(),
             }, path)
             print('Saved checkpoints at', path)
+            rof_path = os.path.join(args.datadir, 'rof_mean.tar')
+            torch.save(rof_mean, rof_path)
 
         if i % args.i_testset == 0 and i > 0:
             testsavedir = os.path.join(
