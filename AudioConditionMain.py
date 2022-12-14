@@ -10,8 +10,8 @@ from tqdm import tqdm
 
 wandb.init(project="Audio-Conditioning")
 
-batch_size = 1
-accumulation = 128
+batch_size = 32
+accumulation = 1
 num_epochs = 25
 weight_decay = 1e-5
 embedding_size = 64
@@ -53,6 +53,7 @@ since = time.time()
 wandb.watch(model)
 best_loss = 1e10
 global_step = 0
+epoch_loss = {'train': 0.0, 'val': 0.0}
 for epoch in tqdm(range(num_epochs)):
     print(f'Epoch {epoch}/{num_epochs - 1}')
     print('-' * 10)
@@ -64,32 +65,34 @@ for epoch in tqdm(range(num_epochs)):
         else:
             model.eval()  # Set model to evaluate mode
 
-        running_loss = 0.0
+        running_loss = {'train': 0.0, 'val': 0.0}
         running_corrects = 0
         actual_loss=0.0
         # Iterate over data.
-        for batch_id, (audio_features, landmarks) in enumerate(tqdm(dataloaders[phase])):
-            audio_features = audio_features
-            landmarks = landmarks
-
+        for batch_id, (query, positive_key, negative_key) in enumerate(tqdm(dataloaders[phase])):
             # forward
             # track history if only in train
             with torch.set_grad_enabled(phase == 'train'):
-                contrastive_loss = model(audio_features, landmarks)
+                contrastive_loss = model(query, positive_key, negative_key)
                 # backward + optimize only if in training phase
                 if phase == 'train':
                     contrastive_loss = contrastive_loss/accumulation
                     actual_loss += contrastive_loss
                     contrastive_loss.backward()
-                    if (batch_id+1)%accumulation==0 or batch_id==len(dataloaders[phase])-1:
-                        wandb.log({"contrastive_loss": actual_loss})
-                        print(actual_loss)
-                        actual_loss=0.0
+                    if (batch_id+1)%accumulation == 0 or batch_id == len(dataloaders[phase])-1:
+                        wandb.log({"train_contrastive_loss": actual_loss})
                         optimizer.step()
                         optimizer.zero_grad()
+                else:
+                    wandb.log({'val_contrastive_loss': contrastive_loss})
 
             # statistics
-            running_loss += contrastive_loss * landmarks['pos'].size(0)
+            if phase == 'train':
+                running_loss[phase] += actual_loss * query.size(0)
+                actual_loss = 0.0
+            else:
+                running_loss[phase] += contrastive_loss * query.size(0)
+
             if phase == 'train':
                 decay_rate = 0.1
                 decay_steps = lrate_decay * 1000
@@ -97,15 +100,15 @@ for epoch in tqdm(range(num_epochs)):
                 for param_group in optimizer.param_groups:
                     param_group['lr'] = new_lrate
                 global_step += 1
-        epoch_loss = running_loss / dataset_sizes[phase]
-        print(f'{phase} Loss: {epoch_loss:.4f}')
-        wandb.log({phase + "_loss": epoch_loss})
+        epoch_loss[phase] = running_loss[phase] / dataset_sizes['train']
+        epoch_loss[phase] = running_loss[phase] / dataset_sizes['val']
+        print(f'{phase} Loss: {epoch_loss[phase]:.4f}')
+        wandb.log({phase + "_loss": epoch_loss[phase]})
 
         # deep copy the model
-        if phase == 'val' and epoch_loss < best_loss:
-            best_loss = epoch_loss
+        if phase == 'val' and epoch_loss[phase] < best_loss:
+            best_loss = epoch_loss[phase]
             best_audnet = copy.deepcopy(model.audionet.state_dict())
-            best_audattnnet = copy.deepcopy(model.audioattnnet.state_dict())
             best_model_wts = copy.deepcopy(model.state_dict())
 
     print()
@@ -114,7 +117,6 @@ for epoch in tqdm(range(num_epochs)):
     print(f'Training complete in {time_elapsed // 60:.0f}m {time_elapsed % 60:.0f}s')
 
     torch.save(best_audnet, 'best_audnet.pt')
-    torch.save(best_audattnnet, 'best_audattnnet.pt')
     torch.save(best_model_wts, 'best_audcond.pt')
     # load best model weights
     model.load_state_dict(best_model_wts)
