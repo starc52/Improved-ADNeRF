@@ -43,4 +43,3 @@ if __name__ == '__main__':
     args = parser.parse_args()
     video_to_audio_features('/scratch/tan/train_landmarks.csv', frac=args.frac, frac_id=args.frac_id)
     video_to_audio_features('/scratch/tan/val_landmarks.csv',  frac=args.frac, frac_id=args.frac_id)
-

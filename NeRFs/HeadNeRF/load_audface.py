@@ -7,7 +7,7 @@ import torch.nn.functional as F
 import cv2
 
 
-def load_audface_data(basedir, testskip=1, test_file=None, aud_file=None):
+def load_audface_data(basedir, testskip=1, test_file=None, test_rof_file=None, aud_file=None):
     if test_file is not None:
         with open(os.path.join(basedir, test_file)) as fp:
             meta = json.load(fp)
@@ -23,7 +23,8 @@ def load_audface_data(basedir, testskip=1, test_file=None, aud_file=None):
         H, W = bc_img.shape[0], bc_img.shape[1]
         focal, cx, cy = float(meta['focal_length']), float(
             meta['cx']), float(meta['cy'])
-        return poses, auds, bc_img, [H, W, focal, cx, cy]
+        rof_emb = np.load(test_rof_file).astype(np.float32)
+        return poses, auds, bc_img, [H, W, focal, cx, cy], rof_emb
 
     splits = ['train', 'val']
     metas = {}
