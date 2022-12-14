@@ -12,6 +12,7 @@ import torch.nn.functional as F
 from tqdm import tqdm, trange
 from natsort import natsorted
 from run_nerf_helpers import *
+import traceback
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
 sys.path.append(os.path.abspath(os.path.join(dir_path, os.pardir, os.pardir)))
@@ -1002,5 +1003,9 @@ def train():
 
 if __name__ == '__main__':
     torch.set_default_tensor_type('torch.cuda.FloatTensor')
-
-    train()
+    try:
+        train()
+    except:
+        extype, value, tb = sys.exc_info()
+        traceback.print_exc()
+        pdb.post_mortem(tb)
