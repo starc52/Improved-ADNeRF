@@ -59,7 +59,19 @@ class AudioConditionModel(nn.Module):
         neg_audio_embs = self.audioattnnet(self.audionet(torch.squeeze(neg_audio_features, dim=0)))
         neg_audio_embs = torch.unsqueeze(neg_audio_embs, dim=0)
         neg_eye_embs, neg_mouth_embs = self.landmark_encoder(neg_landmarks)
+        #print("pos_eye_embs", pos_eye_embs)
+        #print("pos_mouth_embs", pos_mouth_embs)
+        #print("pos_audio_embs", pos_audio_embs)
+        #print("neg_eye_embs", neg_eye_embs)
+        #print("neg_mouth_embs", neg_mouth_embs)
+        #print("neg_audio_embs", neg_audio_embs)
 
-        contrastive_loss = -torch.sum(torch.log(self.cos_dist(pos_audio_embs, pos_mouth_embs) + self.eps)) - \
-                          torch.sum(torch.log(1 - self.cos_dist(neg_audio_embs, neg_mouth_embs) + self.eps))
+        #print("pos cos dist", self.cos_dist(pos_audio_embs, pos_mouth_embs))
+        #print("neg cos dist", self.cos_dist(neg_audio_embs, neg_mouth_embs))
+        pos_cos = (self.cos_dist(pos_audio_embs, pos_mouth_embs)+1)/2
+        neg_cos = (self.cos_dist(neg_audio_embs, neg_mouth_embs)+1)/2
+        #print("pos log", -torch.sum(torch.nan_to_num(torch.log(pos_cos + self.eps))))
+        #print("neg log", -torch.sum(torch.log(1 - neg_cos + self.eps)))
+        contrastive_loss = -torch.sum(torch.nan_to_num(torch.log(pos_cos + self.eps))) - \
+                          torch.sum(torch.log(1 - neg_cos + self.eps))
         return contrastive_loss

@@ -11,29 +11,35 @@ from tqdm import tqdm
 wandb.init(project="Audio-Conditioning")
 
 batch_size = 1
-num_epochs = 4
+accumulation = 128
+num_epochs = 25
 weight_decay = 1e-5
 embedding_size = 64
+lrate_decay = 30
+lrate = 5e-3
+
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 wandb.config = {"batch_size": batch_size,
+                "accumulation": accumulation,
+                "embedding_size": embedding_size,
                 "epochs": num_epochs,
                 "weight_decay": weight_decay,
                 }
 
-train_audcond_dataset = AudioConditionDataset(csv_file='/scratch/tan/train_landmarks.csv')
-val_audcond_dataset = AudioConditionDataset(csv_file='/scratch/tan/val_landmarks.csv')
+train_audcond_dataset = AudioConditionDataset(csv_file='/scratch/tan/train_landmarks1p.csv')
+val_audcond_dataset = AudioConditionDataset(csv_file='/scratch/tan/val_landmarks1p.csv')
 
 dataset_sizes = {'train': len(train_audcond_dataset), 'val': len(val_audcond_dataset)}
 
 train_dataloader = torch.utils.data.DataLoader(train_audcond_dataset,
                                                batch_size=batch_size,
                                                shuffle=True,
-                                               num_workers=15)
+                                               num_workers=1)
 val_dataloader = torch.utils.data.DataLoader(val_audcond_dataset,
                                              batch_size=batch_size,
                                              shuffle=True,
-                                             num_workers=15)
+                                             num_workers=1)
 
 dataloaders = {'train': train_dataloader, 'val': val_dataloader}
 
@@ -42,8 +48,6 @@ autoencoder = LandmarkAutoencoder(switch_factor=0.8, embedding_size=64)
 landmark_encoder_state = autoencoder.encoder.state_dict()
 
 model = AudioConditionModel(landmarkenc_state=landmark_encoder_state, audnet_trainable=True).to(device)
-lrate_decay = 250
-lrate = 5e-4
 optimizer = torch.optim.Adam(model.parameters(), lr=lrate, weight_decay=weight_decay)
 since = time.time()
 wandb.watch(model)
@@ -55,30 +59,34 @@ for epoch in tqdm(range(num_epochs)):
     for phase in ['train', 'val']:
         if phase == 'train':
             model.train()  # Set model to training mode
+            # zero the parameter gradients
+            optimizer.zero_grad()
         else:
             model.eval()  # Set model to evaluate mode
 
         running_loss = 0.0
         running_corrects = 0
-
+        actual_loss=0.0
         # Iterate over data.
-        for audio_features, landmarks in tqdm(dataloaders[phase]):
+        for batch_id, (audio_features, landmarks) in enumerate(tqdm(dataloaders[phase])):
             audio_features = audio_features
             landmarks = landmarks
-
-            # zero the parameter gradients
-            optimizer.zero_grad()
 
             # forward
             # track history if only in train
             with torch.set_grad_enabled(phase == 'train'):
                 contrastive_loss = model(audio_features, landmarks)
                 # backward + optimize only if in training phase
-                wandb.log({"contrastive_loss": contrastive_loss})
-
                 if phase == 'train':
+                    contrastive_loss = contrastive_loss/accumulation
+                    actual_loss += contrastive_loss
                     contrastive_loss.backward()
-                    optimizer.step()
+                    if (batch_id+1)%accumulation==0 or batch_id==len(dataloaders[phase])-1:
+                        wandb.log({"contrastive_loss": actual_loss})
+                        print(actual_loss)
+                        actual_loss=0.0
+                        optimizer.step()
+                        optimizer.zero_grad()
 
             # statistics
             running_loss += contrastive_loss * landmarks['pos'].size(0)
