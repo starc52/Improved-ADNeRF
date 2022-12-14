@@ -144,6 +144,10 @@ class AudioNet(nn.Module):
         self.encoder_fc1 = nn.Sequential(
             nn.Linear(64, 64),
             nn.LeakyReLU(0.02, True),
+            nn.Linear(64, 64),
+            nn.LeakyReLU(0.02, True),
+            nn.Linear(64, 64),
+            nn.LeakyReLU(0.02, True),
             nn.Linear(64, dim_aud),
         )
 
