@@ -115,10 +115,16 @@ class AudioNet(nn.Module):
             nn.Conv1d(29, 32, kernel_size=3, stride=2,
                       padding=1, bias=True),  # n x 32 x 8
             nn.LeakyReLU(0.02, True),
+            nn.Conv1d(32, 32, kernel_size=3, stride=1,
+                      padding=1, bias=True),  # n x 32 x 8
+            nn.LeakyReLU(0.02, True),
             nn.Conv1d(32, 32, kernel_size=3, stride=2,
                       padding=1, bias=True),  # n x 32 x 4
             nn.LeakyReLU(0.02, True),
             nn.Conv1d(32, 64, kernel_size=3, stride=2,
+                      padding=1, bias=True),  # n x 64 x 2
+            nn.LeakyReLU(0.02, True),
+            nn.Conv1d(64, 64, kernel_size=3, stride=1,
                       padding=1, bias=True),  # n x 64 x 2
             nn.LeakyReLU(0.02, True),
             nn.Conv1d(64, 64, kernel_size=3, stride=2,
