@@ -309,7 +309,7 @@ def create_nerf(args):
         if 'optimize_audatt_state_dict' in ckpt:
             optimizer_audatt_state = ckpt['optimize_audatt_state_dict']
 
-    if args.load_aud_cond:
+    if args.load_aud_cond is not None:
         aud_cond_state = torch.load(args.load_aud_cond)
     ##########################
 
@@ -533,6 +533,8 @@ def config_parser():
                         help='batch size (number of random rays per gradient step)')
     parser.add_argument("--lrate", type=float, default=5e-4,
                         help='learning rate')
+    parser.add_argument("--audnet_lrate", type=float, default=5e-5,
+                        help='audnet learning rate')
     parser.add_argument("--lrate_decay", type=int, default=250,
                         help='exponential learning rate decay (in 1000 steps)')
     parser.add_argument("--chunk", type=int, default=1024,
@@ -548,7 +550,7 @@ def config_parser():
     parser.add_argument("--N_iters", type=int, default=400000,
                         help='number of iterations')
     # args.load_aud_cond
-    parser.add_argument("--load_aud_cond", type=str, default=None,
+    parser.add_argument("--load_aud_cond", type=str, default='best_audcond.pt',
                         help='load from audcond model')
 
     # rendering options
@@ -709,7 +711,7 @@ def train():
     aud_cond_model = AudioConditionModel().to(device)
     landmark_encoder = LandmarkEncoder().to(device)
     optimizer_Aud = torch.optim.Adam(
-        params=list(AudNet.parameters()), lr=args.lrate, betas=(0.9, 0.999))
+        params=list(AudNet.parameters()), lr=args.audnet_lrate, betas=(0.9, 0.999))
     optimizer_AudAtt = torch.optim.Adam(
         params=list(AudAttNet.parameters()), lr=args.lrate, betas=(0.9, 0.999))
 
