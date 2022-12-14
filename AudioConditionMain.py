@@ -27,8 +27,8 @@ wandb.config = {"batch_size": batch_size,
                 "weight_decay": weight_decay,
                 }
 
-train_audcond_dataset = AudioConditionDataset(csv_file='/scratch/tan/train_landmarks1p.csv')
-val_audcond_dataset = AudioConditionDataset(csv_file='/scratch/tan/val_landmarks1p.csv')
+train_audcond_dataset = AudioConditionDataset(csv_file='/scratch/tan/train_landmarks10p.csv')
+val_audcond_dataset = AudioConditionDataset(csv_file='/scratch/tan/val_landmarks10p.csv')
 
 dataset_sizes = {'train': len(train_audcond_dataset), 'val': len(val_audcond_dataset)}
 
