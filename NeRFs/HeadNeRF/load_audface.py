@@ -16,7 +16,7 @@ def load_audface_data(basedir, testskip=1, test_file=None, test_rof_file=None, a
         aud_features = np.load(os.path.join(basedir, aud_file))
         for frame in meta['frames'][::testskip]:
             poses.append(np.array(frame['transform_matrix']))
-            auds.append(aud_features[frame['frame_id']])
+            auds.append(aud_features[frame['aud_id']])
         poses = np.array(poses).astype(np.float32)
         auds = np.array(auds).astype(np.float32)
         bc_img = imageio.imread(os.path.join(basedir, 'bc.jpg'))
