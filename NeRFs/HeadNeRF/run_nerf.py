@@ -852,10 +852,10 @@ def train():
                 auds_win = AudNet(auds_win)
                 aud = auds_win[smo_half_win]
                 aud_smo = AudAttNet(auds_win)
-                aud_smo = torch.cat([aud_smo, rof_emb], 1)
+                aud_smo = torch.cat([aud_smo, torch.squeeze(rof_emb)], 0)
             else:
                 aud = AudNet(aud.unsqueeze(0))
-                aud = torch.cat([aud, rof_emb], 1)
+                aud = torch.cat([aud, torch.squeeze(rof_emb)], 0)
 
             if N_rand is not None:
                 rays_o, rays_d = get_rays(

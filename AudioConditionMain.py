@@ -15,7 +15,7 @@ accumulation = 1
 num_epochs = 10
 weight_decay = 1e-5
 embedding_size = 64
-lrate_decay = 250
+lrate_decay = 2500
 lrate = 1e-3
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
