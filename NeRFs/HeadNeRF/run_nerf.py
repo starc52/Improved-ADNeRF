@@ -988,7 +988,9 @@ def train():
             os.makedirs(testsavedir, exist_ok=True)
             print('test poses shape', poses[i_val].shape)
             auds_val = AudNet(auds[i_val])
-            rof_embs = torch.cat([rof_emb] * auds.size(0), 0)
+
+            rof_embs = torch.cat([rof_emb] * auds_val.size(0), 0)
+
             auds_val = torch.cat([auds_val, rof_embs], 1)
             with torch.no_grad():
                 render_path(torch.Tensor(poses[i_val]).to(
