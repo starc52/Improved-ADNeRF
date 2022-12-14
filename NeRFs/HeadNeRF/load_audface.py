@@ -21,7 +21,7 @@ def load_audface_data(basedir, testskip=1, test_file=None, test_rof_file=None, a
         auds = np.array(auds).astype(np.float32)
         bc_img = imageio.imread(os.path.join(basedir, 'bc.jpg'))
         H, W = bc_img.shape[0], bc_img.shape[1]
-        focal, cx, cy = float(meta['focal_length']), float(
+        focal, cx, cy = float(meta['focal_len']), float(
             meta['cx']), float(meta['cy'])
         rof_emb = torch.load(os.path.join(basedir, test_rof_file))
         return poses, auds, bc_img, [H, W, focal, cx, cy], rof_emb
