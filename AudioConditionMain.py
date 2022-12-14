@@ -12,11 +12,11 @@ wandb.init(project="Audio-Conditioning")
 
 batch_size = 32
 accumulation = 1
-num_epochs = 25
+num_epochs = 4
 weight_decay = 1e-5
 embedding_size = 64
-lrate_decay = 30
-lrate = 5e-3
+lrate_decay = 250
+lrate = 5e-4
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
