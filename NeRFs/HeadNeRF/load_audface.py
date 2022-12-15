@@ -13,18 +13,26 @@ def load_audface_data(basedir, testskip=1, test_file=None, test_rof_file=None, a
             meta = json.load(fp)
         poses = []
         auds = []
+        lms = []
+        image_size = np.array(imageio.imread(os.path.join(basedir,
+                                                          'ori_imgs',
+                                                          str(meta['frames'][0]['img_id']) + '.jpg'))).shape[0]
         aud_features = np.load(os.path.join(basedir, aud_file))
         for frame in meta['frames'][::testskip]:
             poses.append(np.array(frame['transform_matrix']))
             auds.append(aud_features[frame['aud_id']])
+            lmname = os.path.join(basedir, 'ori_imgs',
+                                  str(frame['img_id']) + '.lms')
+            lms.append(lmname)
         poses = np.array(poses).astype(np.float32)
         auds = np.array(auds).astype(np.float32)
+        lms = np.array(lms)
         bc_img = imageio.imread(os.path.join(basedir, 'bc.jpg'))
         H, W = bc_img.shape[0], bc_img.shape[1]
         focal, cx, cy = float(meta['focal_len']), float(
             meta['cx']), float(meta['cy'])
         rof_emb = torch.load(os.path.join(basedir, test_rof_file))
-        return poses, auds, bc_img, [H, W, focal, cx, cy], rof_emb
+        return poses, auds, lms, image_size, bc_img, [H, W, focal, cx, cy], rof_emb
 
     splits = ['train', 'val']
     metas = {}
@@ -38,6 +46,9 @@ def load_audface_data(basedir, testskip=1, test_file=None, test_rof_file=None, a
     all_lms = []
     aud_features = np.load(os.path.join(basedir, 'aud.npy'))
     counts = [0]
+    image_size = np.array(imageio.imread(os.path.join(basedir,
+                                                      'ori_imgs',
+                                                      str(meta['frames'][0]['img_id']) + '.jpg'))).shape[0]
     for s in splits:
         meta = metas[s]
         imgs = []
@@ -86,4 +97,4 @@ def load_audface_data(basedir, testskip=1, test_file=None, test_rof_file=None, a
     focal, cx, cy = float(meta['focal_len']), float(
         meta['cx']), float(meta['cy'])
 
-    return imgs, poses, auds, lms, bc_img, [H, W, focal, cx, cy], sample_rects, sample_rects, i_split
+    return imgs, poses, auds, lms, image_size, bc_img, [H, W, focal, cx, cy], sample_rects, sample_rects, i_split

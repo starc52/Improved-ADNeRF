@@ -575,6 +575,8 @@ def config_parser():
 
     parser.add_argument("--render_only", action='store_true',
                         help='do not optimize, reload weights and render out render_poses path')
+    parser.add_argument("--use_train_lms", action='store_true',
+                        help='use training image landmarks during rendering instead of rof_mean')
     parser.add_argument("--render_test", action='store_true',
                         help='render the test set instead of render_poses path')
     parser.add_argument("--render_factor", type=int, default=0,
@@ -662,12 +664,12 @@ def train():
 
     if args.dataset_type == 'audface':
         if args.with_test == 1:
-            poses, auds, bc_img, hwfcxy, rof_emb = \
+            poses, auds, lms, image_size, bc_img, hwfcxy, rof_mean = \
                 load_audface_data(basedir=args.datadir, testskip=args.testskip,
                                   test_file=args.test_file, test_rof_file=args.test_rof_file, aud_file=args.aud_file)
             images = np.zeros(1)
         else:
-            images, poses, auds, lms, bc_img, hwfcxy, sample_rects, mouth_rects, i_split = load_audface_data(
+            images, poses, auds, lms, image_size, bc_img, hwfcxy, sample_rects, mouth_rects, i_split = load_audface_data(
                 basedir=args.datadir, testskip=args.testskip)
         print('Loaded audface', images.shape, hwfcxy, args.datadir)
         if args.with_test == 0:
@@ -751,8 +753,18 @@ def train():
             os.makedirs(testsavedir, exist_ok=True)
             print('test poses shape', poses.shape)
             auds_val = AudNet(auds)
-
-            rof_embs = torch.cat([rof_emb]*auds.size(0), 0)
+            rof_embs = None
+            if args.use_train_lms:
+                lm = torch.as_tensor(np.loadtxt(lms[0]).astype(np.float32)).to(device)
+                lm = lm / image_size
+                rof_embs, _ = landmark_encoder(lm)
+                for frame_lm in lms[1:]:
+                    lm = torch.as_tensor(np.loadtxt(frame_lm).astype(np.float32)).to(device)
+                    lm = lm / image_size
+                    rof_emb, _ = landmark_encoder(lm)
+                    rof_embs = torch.cat([rof_embs, rof_emb], 0)
+            else:
+                rof_embs = torch.cat([rof_mean]*auds.size(0), 0)
             auds_val = torch.cat([auds_val, rof_embs], 1)
 
             rgbs, disp, last_weight = render_path(poses, auds_val, bc_img, hwfcxy, args.chunk, render_kwargs_test,
@@ -760,7 +772,7 @@ def train():
             np.save(os.path.join(testsavedir, 'last_weight.npy'), last_weight)
             print('Done rendering', testsavedir)
             imageio.mimwrite(os.path.join(
-                testsavedir, 'video.mp4'), to8b(rgbs), fps=30, quality=8)
+                testsavedir, 'video.mp4'), to8b(rgbs), fps=25, quality=8)
             return
 
     num_frames = images.shape[0]
@@ -830,7 +842,7 @@ def train():
             rect = sample_rects[img_i]
             mouth_rect = mouth_rects[img_i]
             aud = auds[img_i]
-            rof_emb, mouth_emb = landmark_encoder(lm)
+            rof_emb, _ = landmark_encoder(lm)
             rof_mean = (rof_count*rof_mean)+rof_emb
             rof_count += 1
             rof_mean /= rof_count
@@ -985,8 +997,20 @@ def train():
             os.makedirs(testsavedir, exist_ok=True)
             print('test poses shape', poses[i_val].shape)
             auds_val = AudNet(auds[i_val])
+            rof_embs = None
+            if args.use_train_lms:
+                lm = torch.as_tensor(np.loadtxt(lms[i_val][0]).astype(np.float32)).to(device)
+                lm = lm / image_size
+                rof_embs, _ = landmark_encoder(lm)
+                for frame_lm in lms[i_val][1:]:
+                    lm = torch.as_tensor(np.loadtxt(frame_lm).astype(np.float32)).to(device)
+                    lm = lm / image_size
+                    rof_emb, _ = landmark_encoder(lm)
+                    rof_embs = torch.cat([rof_embs, rof_emb], 0)
+            else:
+                rof_embs = torch.cat([rof_mean]*auds_val.size(0), 0)
 
-            rof_embs = torch.cat([rof_emb] * auds_val.size(0), 0)
+            # rof_embs = torch.cat([rof_emb] * auds_val.size(0), 0)
 
             auds_val = torch.cat([auds_val, rof_embs], 1)
             with torch.no_grad():
