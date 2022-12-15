@@ -8,7 +8,6 @@ import cv2
 
 
 def load_audface_data(basedir, testskip=1, test_file=None, test_rof_file=None, aud_file=None, test_size=-1):
-    print(test_size)
     if test_file is not None:
         with open(os.path.join(basedir, test_file)) as fp:
             meta = json.load(fp)
@@ -22,7 +21,7 @@ def load_audface_data(basedir, testskip=1, test_file=None, test_rof_file=None, a
         cur=0
         for frame in meta['frames'][::testskip]:
             poses.append(np.array(frame['transform_matrix']))
-            auds.append(aud_features[frame['aud_id']])
+            auds.append(aud_features[cur])
             lmname = os.path.join(basedir, 'ori_imgs',
                                   str(frame['img_id']) + '.lms')
             lms.append(lmname)
