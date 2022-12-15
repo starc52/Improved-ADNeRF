@@ -17,9 +17,9 @@ sys.path.append(os.path.abspath(os.path.join(dir_path, os.pardir, os.pardir)))
 from AudioConditionModel import AudioConditionModel
 from LandmarkModels import LandmarkEncoder
 
-import wandb
+#import wandb
 
-wandb.init(project="Improved-ADNeRF", entity="starc52")
+#wandb.init(project="Improved-ADNeRF", entity="starc52")
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 np.random.seed(0)
@@ -661,7 +661,7 @@ def train():
 
     parser = config_parser()
     args = parser.parse_args()
-    wandb.config = vars(args)
+    #wandb.config = vars(args)
     # Load data
 
     if args.dataset_type == 'audface':
@@ -1025,8 +1025,8 @@ def train():
             print('Saved test set')
 
         if i % args.i_print == 0:
-            wandb.log({'Loss': loss.item(),
-                       'PSNR': psnr.item()})
+            #wandb.log({'Loss': loss.item(),
+                       # 'PSNR': psnr.item()})
             tqdm.write(
                 f"[TRAIN] Iter: {i} Loss: {loss.item()}  PSNR: {psnr.item()}")
         global_step += 1
