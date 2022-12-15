@@ -8,6 +8,7 @@ import cv2
 
 
 def load_audface_data(basedir, testskip=1, test_file=None, test_rof_file=None, aud_file=None, test_size=-1):
+    print(test_size)
     if test_file is not None:
         with open(os.path.join(basedir, test_file)) as fp:
             meta = json.load(fp)
