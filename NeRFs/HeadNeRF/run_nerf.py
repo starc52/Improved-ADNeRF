@@ -617,6 +617,8 @@ def config_parser():
                         help="far sampling plane")
     parser.add_argument("--test_file", type=str, default='transforms_test.json',
                         help='test file')
+    parser.add_argument("--test_size", type=str, default=-1,
+                        help="number of frames for test render")
     parser.add_argument("--test_rof_file", type=str, default='rof_mean.tar',
                         help='test rest-of-face embedding mean saved as npy')
     parser.add_argument("--aud_file", type=str, default='aud.npy',
