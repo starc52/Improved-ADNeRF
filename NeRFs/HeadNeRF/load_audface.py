@@ -7,7 +7,7 @@ import torch.nn.functional as F
 import cv2
 
 
-def load_audface_data(basedir, testskip=1, test_file=None, test_rof_file=None, aud_file=None):
+def load_audface_data(basedir, testskip=1, test_file=None, test_rof_file=None, aud_file=None, test_size=-1):
     if test_file is not None:
         with open(os.path.join(basedir, test_file)) as fp:
             meta = json.load(fp)
@@ -18,12 +18,16 @@ def load_audface_data(basedir, testskip=1, test_file=None, test_rof_file=None, a
                                                           'ori_imgs',
                                                           str(meta['frames'][0]['img_id']) + '.jpg'))).shape[0]
         aud_features = np.load(os.path.join(basedir, aud_file))
+        cur=0
         for frame in meta['frames'][::testskip]:
             poses.append(np.array(frame['transform_matrix']))
             auds.append(aud_features[frame['aud_id']])
             lmname = os.path.join(basedir, 'ori_imgs',
                                   str(frame['img_id']) + '.lms')
             lms.append(lmname)
+            cur+=1
+            if cur == aud_features.shape[0] or cur == test_size:
+                break
         poses = np.array(poses).astype(np.float32)
         auds = np.array(auds).astype(np.float32)
         lms = np.array(lms)

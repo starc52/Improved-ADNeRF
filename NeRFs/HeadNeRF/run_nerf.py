@@ -667,8 +667,12 @@ def train():
     if args.dataset_type == 'audface':
         if args.with_test == 1:
             poses, auds, lms, image_size, bc_img, hwfcxy, rof_mean = \
-                load_audface_data(basedir=args.datadir, testskip=args.testskip,
-                                  test_file=args.test_file, test_rof_file=args.test_rof_file, aud_file=args.aud_file)
+                load_audface_data(basedir=args.datadir,
+                                  testskip=args.testskip,
+                                  test_file=args.test_file,
+                                  test_rof_file=args.test_rof_file,
+                                  aud_file=args.aud_file,
+                                  test_size=args.test_size)
             images = np.zeros(1)
         else:
             images, poses, auds, lms, image_size, bc_img, hwfcxy, sample_rects, mouth_rects, i_split = load_audface_data(
