@@ -1,6 +1,8 @@
 # Improved-ADNeRF
 Improving ADNeRF to make it audio identity agnostic by disentangling audio-mouth features. Built on top of https://github.com/YudongGuo/AD-NeRF
 
+Note that you must set up your environment before running the following code. Please try setting up with ```run_ada.yml``` first. If it doesn't work, please set up the environment following the original AD-NeRF code instructions.
+
 ## Facial Feature Disentangling
 * All code in Landmark*.py
 * Run ```LandmarkMain.py``` to train model.
