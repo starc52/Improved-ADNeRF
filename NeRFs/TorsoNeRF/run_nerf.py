@@ -847,7 +847,7 @@ def train():
                                       cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'), 25, (W, H))
             for j in tqdm(range(poses.shape[0])):
                 rgbs, disps, last_weights, rgb_fgs = \
-                    render_path(adjust_poses[j:j+1], auds_val[j:j+1],
+                        render_path(adjust_poses[j:j+1], auds_val[j:j+1],
                                 bc_img, hwfcxy, args.chunk, render_kwargs_test)
                 rgbs_torso, disps_torso, last_weights_torso, rgb_fgs_torso = \
                     render_path(torso_pose.unsqueeze(
