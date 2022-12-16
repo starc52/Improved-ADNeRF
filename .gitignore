@@ -2,7 +2,6 @@ wandb/*
 __pycache__/*
 dataset/*/ori_imgs
 dataset/*/parsing
-dataset/*/logs
 dataset/*/com_imgs
 dataset/*/head_imgs
 
