@@ -7,7 +7,7 @@ Improving ADNeRF to make it audio identity agnostic by disentangling audio-mouth
 
 ## Audio-Lip Synchronisation
 * All code in AudioCondition*.py
-* Run AudioConditionMain.py
+* Run ```AudioConditionMain.py``` to train the model
 
 ## Improved AD-NeRF
 * All code added to NeRFs/HeadNeRF/run_nerf.py, NeRFs/HeadNeRF/run_nerf_helpers.py, NeRFs/HeadNeRF/load_audface.py
