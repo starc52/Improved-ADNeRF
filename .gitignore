@@ -4,4 +4,5 @@ dataset/*/ori_imgs
 dataset/*/parsing
 dataset/*/com_imgs
 dataset/*/head_imgs
-
+Orig-NeRFs/HeadNeRF/__pycache__/*
+Orig-NeRFs/TorsoNeRF/__pycache__/*
