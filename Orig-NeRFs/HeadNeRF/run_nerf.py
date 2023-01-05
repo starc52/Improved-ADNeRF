@@ -731,7 +731,30 @@ def train():
                 'test' if args.render_test else 'path', start))
             os.makedirs(testsavedir, exist_ok=True)
             print('test poses shape', poses.shape)
-            auds_val = AudNet(auds)
+            smo_half_win = int(args.smo_size / 2)
+            auds_val = []
+            for i in range(poses.shape[0]):
+                left_i = i - smo_half_win
+                right_i = i + smo_half_win
+                pad_left, pad_right = 0, 0
+                if left_i < 0:
+                    pad_left = -left_i
+                    left_i = 0
+                if right_i > poses.shape[0]:
+                    pad_right = right_i - poses.shape[0]
+                    right_i = poses.shape[0]
+                auds_win = auds[left_i:right_i]
+                if pad_left > 0:
+                    auds_win = torch.cat(
+                        (torch.zeros_like(auds_win)[:pad_left], auds_win), dim=0)
+                if pad_right > 0:
+                    auds_win = torch.cat(
+                        (auds_win, torch.zeros_like(auds_win)[:pad_right]), dim=0)
+                auds_win = AudNet(auds_win)
+                aud_smo = AudAttNet(auds_win)
+                auds_val.append(aud_smo)
+            auds_val = torch.stack(auds_val, 0)
+            # auds_val = AudNet(auds)
             vid_out = cv2.VideoWriter(os.path.join(testsavedir, 'result.mp4'),
                                       cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'), 25, (W, H))
             t_start = time.time()
