@@ -784,7 +784,7 @@ def train():
     embed_fn, input_ch = get_embedder(3, 0)
     dim_torso_signal = args.dim_aud_body + 2*input_ch
     # Create torso nerf model
-    render_kwargs_train_torso, 1, start, grad_vars_torso, optimizer_torso, \
+    render_kwargs_train_torso, render_kwargs_test_torso, start, grad_vars_torso, optimizer_torso, \
         learned_codes_torso, AudNet_state_torso, optimizer_aud_state_torso, _ = create_nerf(
             args, 'body.tar', dim_torso_signal, device_torso)
     global_step = start
