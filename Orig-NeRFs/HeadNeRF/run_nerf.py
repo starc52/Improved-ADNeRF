@@ -693,6 +693,7 @@ def train():
     render_kwargs_train, render_kwargs_test, start, grad_vars, optimizer, \
         learned_codes, AudNet_state, optimizer_aud_state, AudAttNet_state, optimizer_audatt_state \
         = create_nerf(args)
+    print(f"\n\n\n\nAm I even here? {type(AudAttNet_state)}\n\n\n\n")
     global_step = start
 
     AudNet = AudioNet(args.dim_aud, args.win_size).to(device)
