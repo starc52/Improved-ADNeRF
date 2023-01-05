@@ -784,7 +784,7 @@ def train():
     embed_fn, input_ch = get_embedder(3, 0)
     dim_torso_signal = args.dim_aud_body + 2*input_ch
     # Create torso nerf model
-    render_kwargs_train_torso, render_kwargs_test_torso, start, grad_vars_torso, optimizer_torso, \
+    render_kwargs_train_torso, 1, start, grad_vars_torso, optimizer_torso, \
         learned_codes_torso, AudNet_state_torso, optimizer_aud_state_torso, _ = create_nerf(
             args, 'body.tar', dim_torso_signal, device_torso)
     global_step = start
@@ -852,8 +852,9 @@ def train():
                 rgbs_torso, disps_torso, last_weights_torso, rgb_fgs_torso = \
                     render_path(torso_pose.unsqueeze(
                         0), signal[j:j+1], bc_img.to(device_torso), hwfcxy, args.chunk, render_kwargs_test_torso)
-                rgbs_com = rgbs*last_weights_torso[..., None] + rgb_fgs_torso
-                rgb8 = to8b(rgbs_com[0])
+                # rgbs_com = rgbs*last_weights_torso[..., None] + rgb_fgs_torso
+                # rgb8 = to8b(rgbs_com[0])
+                rgb8 = to8b(rgbs[0])
                 vid_out.write(rgb8[:, :, ::-1])
                 filename = os.path.join(
                     testsavedir, str(aud_ids[j]) + '.jpg')
