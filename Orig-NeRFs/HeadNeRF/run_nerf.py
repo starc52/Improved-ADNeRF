@@ -1,3 +1,5 @@
+import cv2
+
 from load_audface import load_audface_data
 import os
 import sys
@@ -730,12 +732,27 @@ def train():
             os.makedirs(testsavedir, exist_ok=True)
             print('test poses shape', poses.shape)
             auds_val = AudNet(auds)
-            rgbs, disp, last_weight = render_path(poses, auds_val, bc_img, hwfcxy, args.chunk, render_kwargs_test,
-                                                  gt_imgs=images, savedir=testsavedir, render_factor=args.render_factor)
-            np.save(os.path.join(testsavedir, 'last_weight.npy'), last_weight)
+            vid_out = cv2.VideoWriter(os.path.join(testsavedir, 'result.mp4'),
+                                      cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'), 25, (W, H))
+            t_start = time.time()
+            for j in tqdm(range(poses.shape[0])):
+                rgbs, disps, last_weights = \
+                    render_path(poses[j:j + 1], auds_val[j:j + 1],
+                                bc_img, hwfcxy, args.chunk, render_kwargs_test)
+                rgb8 = to8b(rgbs[0])
+                vid_out.write(rgb8[:, :, ::-1])
+                filename = os.path.join(
+                    testsavedir, str(j) + '.jpg')
+                imageio.imwrite(filename, rgb8)
+                print('finished render', j)
+            print('finished render in', time.time() - t_start)
+            vid_out.release()
+            # rgbs, disp, last_weight = render_path(poses, auds_val, bc_img, hwfcxy, args.chunk, render_kwargs_test,
+            #                                       gt_imgs=images, savedir=testsavedir, render_factor=args.render_factor)
+            # np.save(os.path.join(testsavedir, 'last_weight.npy'), last_weight)
             print('Done rendering', testsavedir)
-            imageio.mimwrite(os.path.join(
-                testsavedir, 'video.mp4'), to8b(rgbs), fps=25, quality=8)
+            # imageio.mimwrite(os.path.join(
+            #     testsavedir, 'video.mp4'), to8b(rgbs), fps=25, quality=8)
             return
 
     num_frames = images.shape[0]
