@@ -707,6 +707,7 @@ def train():
     if optimizer_aud_state is not None:
         optimizer_Aud.load_state_dict(optimizer_aud_state)
     if AudAttNet_state is not None:
+        print("Load audattnet")
         AudAttNet.load_state_dict(AudAttNet_state, strict=False)
     if optimizer_audatt_state is not None:
         optimizer_AudAtt.load_state_dict(optimizer_audatt_state)
