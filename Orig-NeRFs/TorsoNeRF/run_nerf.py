@@ -830,9 +830,7 @@ def train():
                     auds_win = torch.cat(
                         (auds_win, torch.zeros_like(auds_win)[:pad_right]), dim=0)
                 auds_win = AudNet(auds_win)
-                print("auds_win shape after AudNet", auds_win.size())
                 aud_smo = AudAttNet(auds_win)
-                print("auds_smo shape after AudAttNet", aud_smo.size())
                 auds_val.append(aud_smo)
             auds_val = torch.stack(auds_val, 0)
 
