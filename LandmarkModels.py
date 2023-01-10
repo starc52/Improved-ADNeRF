@@ -8,13 +8,13 @@ class LandmarkEncoder(nn.Module):
     def __init__(self, embedding_size=64):
         super().__init__()
         self.linear1 = nn.Linear(in_features=68 * 2, out_features=256)
-        self.relu1 = nn.ReLU(negative_slope=0.02)
+        self.relu1 = nn.ReLU()
 
         self.linear2 = nn.Linear(in_features=256, out_features=256)
-        self.relu2 = nn.ReLU(negative_slope=0.02)
+        self.relu2 = nn.ReLU()
 
         self.linear3 = nn.Linear(in_features=256, out_features=128)
-        self.relu3 = nn.ReLU(negative_slope=0.02)
+        self.relu3 = nn.ReLU()
 
         self.linear4_eye = nn.Linear(in_features=128, out_features=embedding_size)
         self.linear4_mouth = nn.Linear(in_features=128, out_features=embedding_size)
@@ -42,13 +42,13 @@ class LandmarkDecoder(nn.Module):
     def __init__(self, embedding_size=64):
         super().__init__()
         self.linear5 = nn.Linear(in_features=2 * embedding_size, out_features=256)
-        self.relu5 = nn.ReLU(negative_slope=0.02)
+        self.relu5 = nn.ReLU()
 
         self.linear6 = nn.Linear(in_features=256, out_features=256)
-        self.relu6 = nn.ReLU(negative_slope=0.02)
+        self.relu6 = nn.ReLU()
 
         self.linear7 = nn.Linear(in_features=256, out_features=256)
-        self.relu7 = nn.ReLU(negative_slope=0.02)
+        self.relu7 = nn.ReLU()
 
         self.linear8 = nn.Linear(in_features=256, out_features=68 * 2)
 
