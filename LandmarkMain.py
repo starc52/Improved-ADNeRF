@@ -9,7 +9,7 @@ from tqdm import tqdm
 wandb.init(project="Landmark-Disentangler")
 
 batch_size = 256
-num_epochs = 4
+num_epochs = 10
 switch_factor = 0.8
 weight_decay = 1e-5
 embedding_size = 64

@@ -8,13 +8,13 @@ class LandmarkEncoder(nn.Module):
     def __init__(self, embedding_size=64):
         super().__init__()
         self.linear1 = nn.Linear(in_features=68 * 2, out_features=256)
-        self.lrelu1 = nn.LeakyReLU(negative_slope=0.02)
+        self.relu1 = nn.ReLU(negative_slope=0.02)
 
         self.linear2 = nn.Linear(in_features=256, out_features=256)
-        self.lrelu2 = nn.LeakyReLU(negative_slope=0.02)
+        self.relu2 = nn.ReLU(negative_slope=0.02)
 
         self.linear3 = nn.Linear(in_features=256, out_features=128)
-        self.lrelu3 = nn.LeakyReLU(negative_slope=0.02)
+        self.relu3 = nn.ReLU(negative_slope=0.02)
 
         self.linear4_eye = nn.Linear(in_features=128, out_features=embedding_size)
         self.linear4_mouth = nn.Linear(in_features=128, out_features=embedding_size)
@@ -23,13 +23,13 @@ class LandmarkEncoder(nn.Module):
         landmarks_flat = landmarks.view(-1, 68 * 2)
 
         x = self.linear1(landmarks_flat)
-        x = self.lrelu1(x)
+        x = self.relu1(x)
 
         x = self.linear2(x)
-        x = self.lrelu2(x)
+        x = self.relu2(x)
 
         x = self.linear3(x)
-        x = self.lrelu3(x)
+        x = self.relu3(x)
 
         x_eye = torch.clone(x)
         x_eye = self.linear4_eye(x_eye)
@@ -42,13 +42,13 @@ class LandmarkDecoder(nn.Module):
     def __init__(self, embedding_size=64):
         super().__init__()
         self.linear5 = nn.Linear(in_features=2 * embedding_size, out_features=256)
-        self.lrelu5 = nn.LeakyReLU(negative_slope=0.02)
+        self.relu5 = nn.ReLU(negative_slope=0.02)
 
         self.linear6 = nn.Linear(in_features=256, out_features=256)
-        self.lrelu6 = nn.LeakyReLU(negative_slope=0.02)
+        self.relu6 = nn.ReLU(negative_slope=0.02)
 
         self.linear7 = nn.Linear(in_features=256, out_features=256)
-        self.lrelu7 = nn.LeakyReLU(negative_slope=0.02)
+        self.relu7 = nn.ReLU(negative_slope=0.02)
 
         self.linear8 = nn.Linear(in_features=256, out_features=68 * 2)
 
@@ -56,13 +56,13 @@ class LandmarkDecoder(nn.Module):
         x = torch.cat((eye_emb, mouth_emb), dim=1)
 
         x = self.linear5(x)
-        x = self.lrelu5(x)
+        x = self.relu5(x)
 
         x = self.linear6(x)
-        x = self.lrelu6(x)
+        x = self.relu6(x)
 
         x = self.linear7(x)
-        x = self.lrelu7(x)
+        x = self.relu7(x)
 
         x = self.linear8(x)
 
