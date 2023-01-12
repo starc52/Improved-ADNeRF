@@ -7,17 +7,23 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 class LandmarkEncoder(nn.Module):
     def __init__(self, embedding_size=64):
         super().__init__()
-        self.linear1 = nn.Linear(in_features=68 * 2, out_features=256)
+        self.linear1 = nn.Linear(in_features=68 * 2, out_features=512)
         self.relu1 = nn.ReLU()
 
-        self.linear2 = nn.Linear(in_features=256, out_features=256)
+        self.linear2 = nn.Linear(in_features=512, out_features=512)
         self.relu2 = nn.ReLU()
 
-        self.linear3 = nn.Linear(in_features=256, out_features=128)
+        self.linear3 = nn.Linear(in_features=512, out_features=512)
         self.relu3 = nn.ReLU()
 
-        self.linear4_eye = nn.Linear(in_features=128, out_features=embedding_size)
-        self.linear4_mouth = nn.Linear(in_features=128, out_features=embedding_size)
+        self.linear4 = nn.Linear(in_features=512, out_features=512)
+        self.relu4 = nn.ReLU()
+
+        self.linear5 = nn.Linear(in_features=512, out_features=128)
+        self.relu5 = nn.ReLU()
+
+        self.linear6_eye = nn.Linear(in_features=128, out_features=embedding_size)
+        self.linear6_mouth = nn.Linear(in_features=128, out_features=embedding_size)
 
     def forward(self, landmarks):
         landmarks_flat = landmarks.view(-1, 68 * 2)
@@ -31,26 +37,38 @@ class LandmarkEncoder(nn.Module):
         x = self.linear3(x)
         x = self.relu3(x)
 
-        x_eye = torch.clone(x)
-        x_eye = self.linear4_eye(x_eye)
+        x = self.linear4(x)
+        x = self.relu4(x)
 
-        x_mouth = self.linear4_mouth(x)
+        x = self.linear5(x)
+        x = self.relu5(x)
+
+        x_eye = torch.clone(x)
+        x_eye = self.linear6_eye(x_eye)
+
+        x_mouth = self.linear6_mouth(x)
         return x_eye, x_mouth
 
 
 class LandmarkDecoder(nn.Module):
     def __init__(self, embedding_size=64):
         super().__init__()
-        self.linear5 = nn.Linear(in_features=2 * embedding_size, out_features=256)
+        self.linear5 = nn.Linear(in_features=2 * embedding_size, out_features=512)
         self.relu5 = nn.ReLU()
 
-        self.linear6 = nn.Linear(in_features=256, out_features=256)
+        self.linear6 = nn.Linear(in_features=512, out_features=512)
         self.relu6 = nn.ReLU()
 
-        self.linear7 = nn.Linear(in_features=256, out_features=256)
+        self.linear7 = nn.Linear(in_features=512, out_features=512)
         self.relu7 = nn.ReLU()
 
-        self.linear8 = nn.Linear(in_features=256, out_features=68 * 2)
+        self.linear8 = nn.Linear(in_features=512, out_features=512)
+        self.relu8 = nn.ReLU()
+
+        self.linear9 = nn.Linear(in_features=512, out_features=512)
+        self.relu9 = nn.ReLU()
+
+        self.linear10 = nn.Linear(in_features=512, out_features=68 * 2)
 
     def forward(self, eye_emb, mouth_emb):
         x = torch.cat((eye_emb, mouth_emb), dim=1)
@@ -65,6 +83,12 @@ class LandmarkDecoder(nn.Module):
         x = self.relu7(x)
 
         x = self.linear8(x)
+        x = self.relu8(x)
+
+        x = self.linear9(x)
+        x = self.relu9(x)
+
+        x = self.linear10(x)
 
         pred = x.view(-1, 68, 2)
 
