@@ -7,19 +7,19 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 class LandmarkEncoder(nn.Module):
     def __init__(self, embedding_size=64):
         super().__init__()
-        self.linear1 = nn.Linear(in_features=68 * 2, out_features=512)
+        self.linear1 = nn.Linear(in_features=68 * 2, out_features=256)
         self.relu1 = nn.ReLU()
 
-        self.linear2 = nn.Linear(in_features=512, out_features=512)
+        self.linear2 = nn.Linear(in_features=256, out_features=256)
         self.relu2 = nn.ReLU()
 
-        self.linear3 = nn.Linear(in_features=512, out_features=512)
+        self.linear3 = nn.Linear(in_features=256, out_features=256)
         self.relu3 = nn.ReLU()
 
-        self.linear4 = nn.Linear(in_features=512, out_features=512)
+        self.linear4 = nn.Linear(in_features=256, out_features=256)
         self.relu4 = nn.ReLU()
 
-        self.linear5 = nn.Linear(in_features=512, out_features=128)
+        self.linear5 = nn.Linear(in_features=256, out_features=128)
         self.relu5 = nn.ReLU()
 
         self.linear6_eye = nn.Linear(in_features=128, out_features=embedding_size)
@@ -53,22 +53,22 @@ class LandmarkEncoder(nn.Module):
 class LandmarkDecoder(nn.Module):
     def __init__(self, embedding_size=64):
         super().__init__()
-        self.linear5 = nn.Linear(in_features=2 * embedding_size, out_features=512)
+        self.linear5 = nn.Linear(in_features=2 * embedding_size, out_features=256)
         self.relu5 = nn.ReLU()
 
-        self.linear6 = nn.Linear(in_features=512, out_features=512)
+        self.linear6 = nn.Linear(in_features=256, out_features=256)
         self.relu6 = nn.ReLU()
 
-        self.linear7 = nn.Linear(in_features=512, out_features=512)
+        self.linear7 = nn.Linear(in_features=256, out_features=256)
         self.relu7 = nn.ReLU()
 
-        self.linear8 = nn.Linear(in_features=512, out_features=512)
+        self.linear8 = nn.Linear(in_features=256, out_features=256)
         self.relu8 = nn.ReLU()
 
-        self.linear9 = nn.Linear(in_features=512, out_features=512)
+        self.linear9 = nn.Linear(in_features=256, out_features=256)
         self.relu9 = nn.ReLU()
 
-        self.linear10 = nn.Linear(in_features=512, out_features=68 * 2)
+        self.linear10 = nn.Linear(in_features=256, out_features=68 * 2)
 
     def forward(self, eye_emb, mouth_emb):
         x = torch.cat((eye_emb, mouth_emb), dim=1)
