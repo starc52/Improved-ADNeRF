@@ -12,7 +12,7 @@ wandb.init(project="Audio-Conditioning")
 
 batch_size = 1024
 accumulation = 1
-num_epochs = 10
+num_epochs = 20
 weight_decay = 1e-5
 embedding_size = 64
 lrate_decay = 2500
@@ -27,8 +27,8 @@ wandb.config = {"batch_size": batch_size,
                 "weight_decay": weight_decay,
                 }
 
-train_audcond_dataset = AudioConditionDataset(csv_file='/scratch/tan/train_landmarks10p.csv')
-val_audcond_dataset = AudioConditionDataset(csv_file='/scratch/tan/val_landmarks10p.csv')
+train_audcond_dataset = AudioConditionDataset(csv_file='/scratch/tan/train_landmarks38p.csv')
+val_audcond_dataset = AudioConditionDataset(csv_file='/scratch/tan/val_landmarks38p.csv')
 
 dataset_sizes = {'train': len(train_audcond_dataset), 'val': len(val_audcond_dataset)}
 
