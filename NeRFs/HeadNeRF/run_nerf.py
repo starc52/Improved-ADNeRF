@@ -736,6 +736,12 @@ def train():
         aud_cond_model.load_state_dict(aud_cond_state)
         landmark_encoder.load_state_dict(aud_cond_model.landmark_encoder.state_dict())
         AudNet.load_state_dict(aud_cond_model.audionet.state_dict())
+
+    # COMMENT BEGIN if audnet needs to be finetuned
+    for param in AudNet.parameters():
+        param.requires_grad = False
+    # COMMENT END
+
     bds_dict = {
         'near': near,
         'far': far,
@@ -960,7 +966,7 @@ def train():
 
         loss.backward()
         optimizer.step()
-        optimizer_Aud.step()
+        # optimizer_Aud.step()
         if global_step >= args.nosmo_iters:
             optimizer_AudAtt.step()
         # NOTE: IMPORTANT!

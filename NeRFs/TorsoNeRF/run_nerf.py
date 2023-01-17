@@ -15,6 +15,12 @@ import cv2
 
 from run_nerf_helpers import *
 
+dir_path = os.path.dirname(os.path.realpath(__file__))
+sys.path.append(os.path.abspath(os.path.join(dir_path, os.pardir, os.pardir)))
+
+from AudioConditionModel import AudioConditionModel
+from LandmarkModels import LandmarkEncoder
+
 device = torch.device('cuda', 0)
 device_torso = torch.device('cuda', 0)
 np.random.seed(0)
@@ -80,11 +86,12 @@ def batchify(fn, chunk):
         return fn
 
     def ret(inputs):
-        return torch.cat([fn(inputs[i:i+chunk]) for i in range(0, inputs.shape[0], chunk)], 0)
+        return torch.cat([fn(inputs[i:i + chunk]) for i in range(0, inputs.shape[0], chunk)], 0)
+
     return ret
 
 
-def run_network(inputs, viewdirs, aud_para, fn, embed_fn, embeddirs_fn, netchunk=1024*64):
+def run_network(inputs, viewdirs, aud_para, fn, embed_fn, embeddirs_fn, netchunk=1024 * 64):
     """Prepares inputs and applies network 'fn'.
     """
     inputs_flat = torch.reshape(inputs, [-1, inputs.shape[-1]])
@@ -103,12 +110,12 @@ def run_network(inputs, viewdirs, aud_para, fn, embed_fn, embeddirs_fn, netchunk
     return outputs
 
 
-def batchify_rays(rays_flat, bc_rgb, aud_para, chunk=1024*32, **kwargs):
+def batchify_rays(rays_flat, bc_rgb, aud_para, chunk=1024 * 32, **kwargs):
     """Render rays in smaller minibatches to avoid OOM.
     """
     all_ret = {}
     for i in range(0, rays_flat.shape[0], chunk):
-        ret = render_rays(rays_flat[i:i+chunk], bc_rgb[i:i+chunk],
+        ret = render_rays(rays_flat[i:i + chunk], bc_rgb[i:i + chunk],
                           aud_para, **kwargs)
         for k in ret:
             if k not in all_ret:
@@ -119,7 +126,7 @@ def batchify_rays(rays_flat, bc_rgb, aud_para, chunk=1024*32, **kwargs):
     return all_ret
 
 
-def render_dynamic_face(H, W, focal, cx, cy, chunk=1024*32, rays=None, bc_rgb=None, aud_para=None,
+def render_dynamic_face(H, W, focal, cx, cy, chunk=1024 * 32, rays=None, bc_rgb=None, aud_para=None,
                         c2w=None, ndc=True, near=0., far=1.,
                         use_viewdirs=False, c2w_staticcam=None,
                         **kwargs):
@@ -150,8 +157,8 @@ def render_dynamic_face(H, W, focal, cx, cy, chunk=1024*32, rays=None, bc_rgb=No
     rays_d = torch.reshape(rays_d, [-1, 3]).float()
 
     near, far = near * \
-        torch.ones_like(rays_d[..., :1]), far * \
-        torch.ones_like(rays_d[..., :1])
+                torch.ones_like(rays_d[..., :1]), far * \
+                torch.ones_like(rays_d[..., :1])
     rays = torch.cat([rays_o, rays_d, near, far], -1)
     if use_viewdirs:
         rays = torch.cat([rays, viewdirs], -1)
@@ -168,7 +175,7 @@ def render_dynamic_face(H, W, focal, cx, cy, chunk=1024*32, rays=None, bc_rgb=No
     return ret_list + [ret_dict]
 
 
-def render(H, W, focal, cx, cy, chunk=1024*32, rays=None, c2w=None, ndc=True,
+def render(H, W, focal, cx, cy, chunk=1024 * 32, rays=None, c2w=None, ndc=True,
            near=0., far=1.,
            use_viewdirs=False, c2w_staticcam=None,
            **kwargs):
@@ -220,8 +227,8 @@ def render(H, W, focal, cx, cy, chunk=1024*32, rays=None, c2w=None, ndc=True,
     rays_d = torch.reshape(rays_d, [-1, 3]).float()
 
     near, far = near * \
-        torch.ones_like(rays_d[..., :1]), far * \
-        torch.ones_like(rays_d[..., :1])
+                torch.ones_like(rays_d[..., :1]), far * \
+                torch.ones_like(rays_d[..., :1])
     rays = torch.cat([rays_o, rays_d, near, far], -1)
     if use_viewdirs:
         rays = torch.cat([rays, viewdirs], -1)
@@ -240,14 +247,13 @@ def render(H, W, focal, cx, cy, chunk=1024*32, rays=None, c2w=None, ndc=True,
 
 def render_path(render_poses, aud_paras, bc_img, hwfcxy,
                 chunk, render_kwargs, gt_imgs=None, savedir=None, render_factor=0):
-
     H, W, focal, cx, cy = hwfcxy
 
     if render_factor != 0:
         # Render downsampled for speed
-        H = H//render_factor
-        W = W//render_factor
-        focal = focal/render_factor
+        H = H // render_factor
+        W = W // render_factor
+        focal = focal / render_factor
 
     rgbs = []
     disps = []
@@ -260,7 +266,7 @@ def render_path(render_poses, aud_paras, bc_img, hwfcxy,
         t = time.time()
         rgb, disp, acc, last_weight, rgb_fg, _ = render_dynamic_face(
             H, W, focal, cx, cy, chunk=chunk, c2w=c2w[:3,
-                                                      :4], aud_para=aud_paras[i], bc_rgb=bc_img,
+                                                  :4], aud_para=aud_paras[i], bc_rgb=bc_img,
             **render_kwargs)
         rgbs.append(rgb.cpu().numpy())
         disps.append(disp.cpu().numpy())
@@ -288,7 +294,7 @@ def render_path(render_poses, aud_paras, bc_img, hwfcxy,
     return rgbs, disps, last_weights, rgb_fgs
 
 
-def create_nerf(args, ext, dim_aud, device_spec=torch.device('cuda', 0), with_audatt=False):
+def create_nerf(args, ext, dim_aud, device_spec=torch.device('cuda', 0), with_audatt=False, torso_flag=False):
     """Instantiate NeRF's MLP model.
     """
     embed_fn, input_ch = get_embedder(
@@ -301,23 +307,35 @@ def create_nerf(args, ext, dim_aud, device_spec=torch.device('cuda', 0), with_au
             args.multires_views, args.i_embed, device=device_spec)
     output_ch = 5 if args.N_importance > 0 else 4
     skips = [4]
-    model = FaceNeRF(D=args.netdepth, W=args.netwidth,
-                     input_ch=input_ch, dim_aud=dim_aud,
-                     output_ch=output_ch, skips=skips,
-                     input_ch_views=input_ch_views, use_viewdirs=args.use_viewdirs).to(device_spec)
+    if not torso_flag:
+        model = FaceNeRF(D=args.netdepth, W=args.netwidth,
+                         input_ch=input_ch, dim_aud=dim_aud,
+                         output_ch=output_ch, skips=skips,
+                         input_ch_views=input_ch_views, use_viewdirs=args.use_viewdirs).to(device_spec)
+    else:
+        model = TorsoNeRF(D=args.netdepth, W=args.netwidth,
+                          input_ch=input_ch, dim_aud=dim_aud,
+                          output_ch=output_ch, skips=skips,
+                          input_ch_views=input_ch_views, use_viewdirs=args.use_viewdirs).to(device_spec)
     grad_vars = list(model.parameters())
 
     model_fine = None
     if args.N_importance > 0:
-        model_fine = FaceNeRF(D=args.netdepth_fine, W=args.netwidth_fine,
-                              input_ch=input_ch, dim_aud=dim_aud,
-                              output_ch=output_ch, skips=skips,
-                              input_ch_views=input_ch_views, use_viewdirs=args.use_viewdirs).to(device_spec)
+        if not torso_flag:
+            model_fine = FaceNeRF(D=args.netdepth_fine, W=args.netwidth_fine,
+                                  input_ch=input_ch, dim_aud=dim_aud,
+                                  output_ch=output_ch, skips=skips,
+                                  input_ch_views=input_ch_views, use_viewdirs=args.use_viewdirs).to(device_spec)
+        else:
+            model_fine = TorsoNeRF(D=args.netdepth_fine, W=args.netwidth_fine,
+                                   input_ch=input_ch, dim_aud=dim_aud,
+                                   output_ch=output_ch, skips=skips,
+                                   input_ch_views=input_ch_views, use_viewdirs=args.use_viewdirs).to(device_spec)
         grad_vars += list(model_fine.parameters())
 
     def network_query_fn(inputs, viewdirs, aud_para, network_fn): \
-        return run_network(inputs, viewdirs, aud_para, network_fn,
-                           embed_fn=embed_fn, embeddirs_fn=embeddirs_fn, netchunk=args.netchunk)
+            return run_network(inputs, viewdirs, aud_para, network_fn,
+                               embed_fn=embed_fn, embeddirs_fn=embeddirs_fn, netchunk=args.netchunk)
 
     # Create optimizer
     optimizer = torch.optim.Adam(
@@ -341,6 +359,7 @@ def create_nerf(args, ext, dim_aud, device_spec=torch.device('cuda', 0), with_au
     AudNet_state = None
     optimizer_aud_state = None
     AudAttNet_state = None
+    # aud_cond_state = None
     if len(ckpts) > 0 and not args.no_reload:
         ckpt_path = ckpts[-1]
         print('Reloading from', ckpt_path)
@@ -357,6 +376,9 @@ def create_nerf(args, ext, dim_aud, device_spec=torch.device('cuda', 0), with_au
         model.load_state_dict(ckpt['network_fn_state_dict'])
         if model_fine is not None:
             model_fine.load_state_dict(ckpt['network_fine_state_dict'])
+
+    # if args.load_aud_cond is not None:
+    #     aud_cond_state = torch.load(args.load_aud_cond)
 
     ##########################
 
@@ -382,10 +404,10 @@ def create_nerf(args, ext, dim_aud, device_spec=torch.device('cuda', 0), with_au
         k: render_kwargs_train[k] for k in render_kwargs_train}
     render_kwargs_test['perturb'] = False
     render_kwargs_test['raw_noise_std'] = 0.
-    if start>400000:
-        start=0
+    if start > 400000:
+        start = 0
     return render_kwargs_train, render_kwargs_test, start, grad_vars, optimizer, learned_codes_dict, \
-        AudNet_state, optimizer_aud_state, AudAttNet_state
+           AudNet_state, optimizer_aud_state, AudAttNet_state, aud_cond_state
 
 
 def raw2outputs(raw, z_vals, rays_d, bc_rgb, raw_noise_std=0, white_bkgd=False, pytest=False):
@@ -401,8 +423,10 @@ def raw2outputs(raw, z_vals, rays_d, bc_rgb, raw_noise_std=0, white_bkgd=False, 
         weights: [num_rays, num_samples]. Weights assigned to each sampled color.
         depth_map: [num_rays]. Estimated distance to object.
     """
-    def raw2alpha(raw, dists, act_fn=F.relu): return 1. - \
-        torch.exp(-(act_fn(raw)+1e-6)*dists)
+
+    def raw2alpha(raw, dists, act_fn=F.relu):
+        return 1. - \
+               torch.exp(-(act_fn(raw) + 1e-6) * dists)
 
     dists = z_vals[..., 1:] - z_vals[..., :-1]
     dists = torch.cat([dists, torch.Tensor([1e10], device=z_vals.device).expand(
@@ -424,19 +448,19 @@ def raw2outputs(raw, z_vals, rays_d, bc_rgb, raw_noise_std=0, white_bkgd=False, 
 
     alpha = raw2alpha(raw[..., 3] + noise, dists)  # [N_rays, N_samples]
     weights = alpha * \
-        torch.cumprod(
-            torch.cat([torch.ones((alpha.shape[0], 1), device=alpha.device), 1.-alpha + 1e-10], -1), -1)[:, :-1]
+              torch.cumprod(
+                  torch.cat([torch.ones((alpha.shape[0], 1), device=alpha.device), 1. - alpha + 1e-10], -1), -1)[:, :-1]
     rgb_map = torch.sum(weights[..., None] * rgb, -2)  # [N_rays, 3]
 
-    rgb_map_fg = torch.sum(weights[:, :-1, None]*rgb[:, :-1, :], -2)
+    rgb_map_fg = torch.sum(weights[:, :-1, None] * rgb[:, :-1, :], -2)
 
     depth_map = torch.sum(weights * z_vals, -1)
-    disp_map = 1./torch.max(1e-10 * torch.ones_like(depth_map),
-                            depth_map / torch.sum(weights, -1))
+    disp_map = 1. / torch.max(1e-10 * torch.ones_like(depth_map),
+                              depth_map / torch.sum(weights, -1))
     acc_map = torch.sum(weights, -1)
 
     if white_bkgd:
-        rgb_map = rgb_map + (1.-acc_map[..., None])
+        rgb_map = rgb_map + (1. - acc_map[..., None])
 
     return rgb_map, disp_map, acc_map, weights, depth_map, rgb_map_fg
 
@@ -494,9 +518,9 @@ def render_rays(ray_batch,
 
     t_vals = torch.linspace(0., 1., steps=N_samples, device=rays_o.device)
     if not lindisp:
-        z_vals = near * (1.-t_vals) + far * (t_vals)
+        z_vals = near * (1. - t_vals) + far * (t_vals)
     else:
-        z_vals = 1./(1./near * (1.-t_vals) + 1./far * (t_vals))
+        z_vals = 1. / (1. / near * (1. - t_vals) + 1. / far * (t_vals))
 
     z_vals = z_vals.expand([N_rays, N_samples])
 
@@ -516,16 +540,14 @@ def render_rays(ray_batch,
         t_rand[..., -1] = 1.0
         z_vals = lower + (upper - lower) * t_rand
     pts = rays_o[..., None, :] + rays_d[..., None, :] * \
-        z_vals[..., :, None]  # [N_rays, N_samples, 3]
+          z_vals[..., :, None]  # [N_rays, N_samples, 3]
 
-
-#     raw = run_network(pts)
+    #     raw = run_network(pts)
     raw = network_query_fn(pts, viewdirs, aud_para, network_fn)
     rgb_map, disp_map, acc_map, weights, depth_map, rgb_map_fg = raw2outputs(
         raw, z_vals, rays_d, bc_rgb, raw_noise_std, white_bkgd, pytest=pytest)
 
     if N_importance > 0:
-
         rgb_map_0, disp_map_0, acc_map_0, last_weight_0, rgb_map_fg_0 = \
             rgb_map, disp_map, acc_map, weights[..., -1], rgb_map_fg
 
@@ -536,7 +558,7 @@ def render_rays(ray_batch,
 
         z_vals, _ = torch.sort(torch.cat([z_vals, z_samples], -1), -1)
         pts = rays_o[..., None, :] + rays_d[..., None, :] * \
-            z_vals[..., :, None]
+              z_vals[..., :, None]
 
         run_fn = network_fn if network_fine is None else network_fine
         raw = network_query_fn(pts, viewdirs, aud_para, run_fn)
@@ -565,7 +587,6 @@ def render_rays(ray_batch,
 
 
 def config_parser():
-
     import configargparse
     parser = configargparse.ArgumentParser()
     parser.add_argument('--config', is_config_file=True,
@@ -594,7 +615,7 @@ def config_parser():
                         help='exponential learning rate decay (in 1000 steps)')
     parser.add_argument("--chunk", type=int, default=1024,
                         help='number of rays processed in parallel, decrease if running out of memory')
-    parser.add_argument("--netchunk", type=int, default=1024*64,
+    parser.add_argument("--netchunk", type=int, default=1024 * 64,
                         help='number of pts sent through network in parallel, decrease if running out of memory')
     parser.add_argument("--no_batching", action='store_false',
                         help='only take random rays from 1 image at a time')
@@ -693,35 +714,34 @@ def config_parser():
                         help='will take every 1/N images as LLFF test set, paper uses 8')
 
     # logging/saving options
-    parser.add_argument("--i_print",   type=int, default=100,
+    parser.add_argument("--i_print", type=int, default=100,
                         help='frequency of console printout and metric loggin')
-    parser.add_argument("--i_img",     type=int, default=500,
+    parser.add_argument("--i_img", type=int, default=500,
                         help='frequency of tensorboard image logging')
     parser.add_argument("--i_weights", type=int, default=10000,
                         help='frequency of weight ckpt saving')
     parser.add_argument("--i_testset", type=int, default=10000,
                         help='frequency of testset saving')
-    parser.add_argument("--i_video",   type=int, default=50000,
+    parser.add_argument("--i_video", type=int, default=50000,
                         help='frequency of render_poses video saving')
 
     return parser
 
 
 def train():
-
     parser = config_parser()
     args = parser.parse_args()
 
     # Load data
     if args.with_test == 1:
-        poses, auds, bc_img, hwfcxy, aud_ids, torso_pose = \
+        poses, auds, lms, image_size, bc_img, hwfcxy, aud_ids, torso_pose = \
             load_test_data(args.datadir, args.aud_file,
                            args.test_pose_file, args.testskip, args.test_size, args.aud_start)
         torso_pose = torch.as_tensor(torso_pose).to(device_torso).float()
         com_images = np.zeros(1)
     else:
         com_images, poses, auds, bc_img, hwfcxy, sample_rects, \
-            i_split = load_audface_data(args.datadir, args.testskip)
+        i_split = load_audface_data(args.datadir, args.testskip)
 
     if args.with_test == 0:
         i_train, i_val = i_split
@@ -751,12 +771,14 @@ def train():
 
     # Create nerf model
     render_kwargs_train, render_kwargs_test, start, grad_vars, optimizer, \
-        learned_codes, AudNet_state, optimizer_aud_state, AudAttNet_state = create_nerf(
-            args, 'head.tar', args.dim_aud, device, True)
+    learned_codes, AudNet_state, optimizer_aud_state, AudAttNet_state, aud_cond_state = create_nerf(
+        args, 'head.tar', args.dim_aud, device, with_audatt=True, torso_flag=False)
     global_step = start
 
     AudNet = AudioNet(args.dim_aud, args.win_size).to(device)
     AudAttNet = AudioAttNet().to(device)
+    # aud_cond_model = AudioConditionModel().to(device)
+    landmark_encoder = LandmarkEncoder().to(device)
     optimizer_Aud = torch.optim.Adam(
         params=list(AudNet.parameters()), lr=args.lrate, betas=(0.9, 0.999))
 
@@ -767,6 +789,10 @@ def train():
         AudAttNet.load_state_dict(AudAttNet_state)
     if optimizer_aud_state is not None:
         optimizer_Aud.load_state_dict(optimizer_aud_state)
+    # if aud_cond_state is not None:
+    #     aud_cond_model.load_state_dict(aud_cond_state)
+    #     landmark_encoder.load_state_dict(aud_cond_model.landmark_encoder.state_dict())
+    #     AudNet.load_state_dict(aud_cond_model.audionet.state_dict())
     bds_dict = {
         'near': near,
         'far': far,
@@ -775,18 +801,18 @@ def train():
     render_kwargs_test.update(bds_dict)
 
     # Move training data to GPU
-    bc_img = torch.Tensor(bc_img).to(device).float()/255.0
+    bc_img = torch.Tensor(bc_img).to(device).float() / 255.0
     poses = torch.Tensor(poses).to(device).float()
     auds = torch.Tensor(auds).to(device).float()
 
     num_frames = com_images.shape[0]
 
     embed_fn, input_ch = get_embedder(3, 0)
-    dim_torso_signal = args.dim_aud_body + 2*input_ch
+    dim_torso_signal = args.dim_aud_body + 2 * input_ch
     # Create torso nerf model
     render_kwargs_train_torso, render_kwargs_test_torso, start, grad_vars_torso, optimizer_torso, \
-        learned_codes_torso, AudNet_state_torso, optimizer_aud_state_torso, _ = create_nerf(
-            args, 'body.tar', dim_torso_signal, device_torso)
+    learned_codes_torso, AudNet_state_torso, optimizer_aud_state_torso, _, _ = create_nerf(
+        args, 'body.tar', dim_torso_signal, device_torso, with_audatt=False, torso_flag=True)
     global_step = start
 
     AudNet_torso = AudioNet(args.dim_aud_body, args.win_size).to(device_torso)
@@ -811,6 +837,10 @@ def train():
             os.makedirs(testsavedir, exist_ok=True)
             print('test poses shape', poses.shape)
             smo_half_win = int(args.smo_size / 2)
+            # auds_val = AudNet(auds)
+
+            ############### COMMENT BEGIN: if attention is harming rather than improving the performance.
+
             auds_val = []
             for i in range(poses.shape[0]):
                 left_i = i - smo_half_win
@@ -833,6 +863,18 @@ def train():
                 aud_smo = AudAttNet(auds_win)
                 auds_val.append(aud_smo)
             auds_val = torch.stack(auds_val, 0)
+            ############### COMMENT END
+
+            lm = torch.as_tensor(np.loadtxt(lms[0]).astype(np.float32)).to(device)
+            lm = lm / image_size
+            rof_embs, _ = landmark_encoder(lm)
+            for frame_lm in lms[1:]:
+                lm = torch.as_tensor(np.loadtxt(frame_lm).astype(np.float32)).to(device)
+                lm = lm / image_size
+                rof_emb, _ = landmark_encoder(lm)
+                rof_embs = torch.cat([rof_embs, rof_emb], 0)
+            auds_val_torso = auds_val.clone()
+            auds_val = torch.cat([auds_val, rof_embs], 1)
 
             adjust_poses = poses.clone()
             adjust_poses_torso = poses.clone()
@@ -840,26 +882,26 @@ def train():
             et = pose_to_euler_trans(adjust_poses_torso)
             embed_et = torch.cat(
                 (embed_fn(et[:, :3]), embed_fn(et[:, 3:])), dim=-1).to(device_torso)
-            signal = torch.cat((auds_val[..., :args.dim_aud_body].to(
+            signal = torch.cat((auds_val_torso[..., :args.dim_aud_body].to(
                 device_torso), embed_et.squeeze()), dim=-1)
             t_start = time.time()
             vid_out = cv2.VideoWriter(os.path.join(testsavedir, 'result.avi'),
                                       cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'), 25, (W, H))
             for j in tqdm(range(poses.shape[0])):
                 rgbs, disps, last_weights, rgb_fgs = \
-                        render_path(adjust_poses[j:j+1], auds_val[j:j+1],
+                    render_path(adjust_poses[j:j + 1], auds_val[j:j + 1],
                                 bc_img, hwfcxy, args.chunk, render_kwargs_test)
                 rgbs_torso, disps_torso, last_weights_torso, rgb_fgs_torso = \
                     render_path(torso_pose.unsqueeze(
-                        0), signal[j:j+1], bc_img.to(device_torso), hwfcxy, args.chunk, render_kwargs_test_torso)
-                rgbs_com = rgbs*last_weights_torso[..., None] + rgb_fgs_torso
+                        0), signal[j:j + 1], bc_img.to(device_torso), hwfcxy, args.chunk, render_kwargs_test_torso)
+                rgbs_com = rgbs * last_weights_torso[..., None] + rgb_fgs_torso
                 rgb8 = to8b(rgbs_com[0])
                 vid_out.write(rgb8[:, :, ::-1])
                 filename = os.path.join(
                     testsavedir, str(aud_ids[j]) + '.jpg')
                 imageio.imwrite(filename, rgb8)
                 print('finished render', j)
-            print('finished render in', time.time()-t_start)
+            print('finished render in', time.time() - t_start)
             vid_out.release()
             return
 
@@ -900,7 +942,7 @@ def train():
         # Sample random ray batch
         if use_batching:
             # Random over all images
-            batch = rays_rgb[i_batch:i_batch+N_rand]  # [B, 2+1, 3*?]
+            batch = rays_rgb[i_batch:i_batch + N_rand]  # [B, 2+1, 3*?]
             batch = torch.transpose(batch, 0, 1)
             batch_rays, target_s = batch[:2], batch[2]
 
@@ -915,13 +957,13 @@ def train():
             # Random from one image
             img_i = np.random.choice(i_train)
             target_com = torch.as_tensor(imageio.imread(
-                com_images[img_i])).to(device).float()/255.0
+                com_images[img_i])).to(device).float() / 255.0
             pose = poses[img_i, :3, :4]
             pose_torso = poses[0, :3, :4].to(device_torso)
             rect = sample_rects[img_i]
             aud = auds[img_i]
 
-            smo_half_win = int(args.smo_size/2)
+            smo_half_win = int(args.smo_size / 2)
             left_i = img_i - smo_half_win
             right_i = img_i + smo_half_win
             pad_left, pad_right = 0, 0
@@ -929,7 +971,7 @@ def train():
                 pad_left = -left_i
                 left_i = 0
             if right_i > i_train.shape[0]:
-                pad_right = right_i-i_train.shape[0]
+                pad_right = right_i - i_train.shape[0]
                 right_i = i_train.shape[0]
             auds_win = auds[left_i:right_i]
             if pad_left > 0:
@@ -953,30 +995,30 @@ def train():
                     H, W, focal, pose_torso, cx, cy, device_torso)
 
                 if i < args.precrop_iters:
-                    dH = int(H//2 * args.precrop_frac)
-                    dW = int(W//2 * args.precrop_frac)
+                    dH = int(H // 2 * args.precrop_frac)
+                    dW = int(W // 2 * args.precrop_frac)
                     coords = torch.stack(
                         torch.meshgrid(
-                            torch.linspace(H//2 - dH, H//2 + dH - 1, 2*dH),
-                            torch.linspace(W//2 - dW, W//2 + dW - 1, 2*dW)
+                            torch.linspace(H // 2 - dH, H // 2 + dH - 1, 2 * dH),
+                            torch.linspace(W // 2 - dW, W // 2 + dW - 1, 2 * dW)
                         ), -1)
                     if i == start:
                         print(
-                            f"[Config] Center cropping of size {2*dH} x {2*dW} is enabled until iter {args.precrop_iters}")
+                            f"[Config] Center cropping of size {2 * dH} x {2 * dW} is enabled until iter {args.precrop_iters}")
                 else:
                     coords = torch.stack(torch.meshgrid(torch.linspace(
-                        0, H-1, H), torch.linspace(0, W-1, W)), -1)  # (H, W, 2)
+                        0, H - 1, H), torch.linspace(0, W - 1, W)), -1)  # (H, W, 2)
 
                 coords = torch.reshape(coords, [-1, 2])  # (H * W, 2)
                 if args.sample_rate > 0:
-                    rect = [0, H/2, W, H/2]
+                    rect = [0, H / 2, W, H / 2]
                     rect_inds = (coords[:, 0] >= rect[0]) & (
-                        coords[:, 0] <= rect[0] + rect[2]) & (
-                            coords[:, 1] >= rect[1]) & (
-                                coords[:, 1] <= rect[1] + rect[3])
+                            coords[:, 0] <= rect[0] + rect[2]) & (
+                                        coords[:, 1] >= rect[1]) & (
+                                        coords[:, 1] <= rect[1] + rect[3])
                     coords_rect = coords[rect_inds]
                     coords_norect = coords[~rect_inds]
-                    rect_num = int(N_rand*float(rect[2])*rect[3]/H/W)
+                    rect_num = int(N_rand * float(rect[2]) * rect[3] / H / W)
                     norect_num = N_rand - rect_num
                     select_inds_rect = np.random.choice(
                         coords_rect.shape[0], size=[rect_num], replace=False)  # (N_rand,)
@@ -1021,14 +1063,14 @@ def train():
             render_dynamic_face(H, W, focal, cx, cy, chunk=args.chunk, rays=batch_rays,
                                 aud_para=aud_smo, bc_rgb=bc_rgb,
                                 verbose=i < 10, retraw=True,
-                                ** render_kwargs_train)
+                                **render_kwargs_train)
         rgb_torso, disp_torso, acc_torso, last_weight_torso, rgb_fg_torso, extras_torso = \
             render_dynamic_face(H, W, focal, cx, cy, chunk=args.chunk, rays=batch_rays_torso,
                                 aud_para=signal, bc_rgb=bc_rgb_torso,
                                 verbose=i < 10, retraw=True,
                                 **render_kwargs_train_torso)
         rgb_com = rgb * \
-            last_weight_torso.to(device)[..., None] + rgb_fg_torso.to(device)
+                  last_weight_torso.to(device)[..., None] + rgb_fg_torso.to(device)
 
         optimizer_torso.zero_grad()
         img_loss_com = img2mse(rgb_com, target_s_com)
@@ -1039,8 +1081,8 @@ def train():
 
         if 'rgb0' in extras_torso:
             rgb_com0 = extras['rgb0'] * \
-                extras_torso['last_weight0'].to(
-                    device)[..., None] + extras_torso['rgb_map_fg0'].to(device)
+                       extras_torso['last_weight0'].to(
+                           device)[..., None] + extras_torso['rgb_map_fg0'].to(device)
             img_loss0 = img2mse(rgb_com0, target_s_com)
             loss = loss + img_loss0
 
@@ -1052,7 +1094,7 @@ def train():
         decay_rate = 0.1
         decay_steps = args.lrate_decay * 1000
         new_lrate = args.lrate * (decay_rate ** (global_step / decay_steps))
-        #print('cur_rate', new_lrate)
+        # print('cur_rate', new_lrate)
         for param_group in optimizer.param_groups:
             param_group['lr'] = new_lrate
 
@@ -1066,7 +1108,7 @@ def train():
             param_group['lr'] = new_lrate
         ################################
 
-        dt = time.time()-time0
+        dt = time.time() - time0
 
         # Rest is logging
         if i % args.i_weights == 0:
@@ -1109,14 +1151,14 @@ def train():
             with torch.no_grad():
                 for j in range(auds_val.shape[0]):
                     rgbs, disps, last_weights, rgb_fgs = \
-                        render_path(poses[i_val][j:j+1], auds_val[j:j+1],
+                        render_path(poses[i_val][j:j + 1], auds_val[j:j + 1],
                                     bc_img, hwfcxy, args.chunk, render_kwargs_test)
                     rgbs_torso, disps_torso, last_weights_torso, rgb_fgs_torso = \
                         render_path(poses[0].to(device_torso).unsqueeze(0),
-                                    signal[j:j+1], bc_img.to(
-                                        device_torso), hwfcxy, args.chunk, render_kwargs_test_torso)
+                                    signal[j:j + 1], bc_img.to(
+                                device_torso), hwfcxy, args.chunk, render_kwargs_test_torso)
                     rgbs_com = rgbs * \
-                        last_weights_torso[..., None] + rgb_fgs_torso
+                               last_weights_torso[..., None] + rgb_fgs_torso
                     rgb8 = to8b(rgbs_com[0])
                     filename = os.path.join(
                         testsavedir, '{:03d}.jpg'.format(j))

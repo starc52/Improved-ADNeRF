@@ -92,17 +92,25 @@ def load_test_data(basedir, aud_file, test_pose_file='transforms_train.json',
     auds = []
     aud_features = np.load(aud_file)
     aud_ids = []
+    lms = []
+    image_size = np.array(imageio.imread(os.path.join(basedir,
+                                                      'ori_imgs',
+                                                      str(meta['frames'][0]['img_id']) + '.jpg'))).shape[0]
     cur_id = 0
     for frame in meta['frames'][::testskip]:
         poses.append(np.array(frame['transform_matrix']))
         auds.append(
             aud_features[min(aud_start+cur_id, aud_features.shape[0]-1)])
+        lmname = os.path.join(basedir, 'ori_imgs',
+                              str(frame['img_id']) + '.lms')
+        lms.append(lmname)
         aud_ids.append(aud_start+cur_id)
         cur_id = cur_id + 1
         if cur_id == test_size or cur_id == aud_features.shape[0]:
             break
     poses = np.array(poses).astype(np.float32)
     auds = np.array(auds).astype(np.float32)
+    lms = np.array(lms)
     bc_img = imageio.imread(os.path.join(basedir, 'bc.jpg'))
     H, W = bc_img.shape[0], bc_img.shape[1]
     focal, cx, cy = float(meta['focal_len']), float(
@@ -111,4 +119,4 @@ def load_test_data(basedir, aud_file, test_pose_file='transforms_train.json',
     with open(os.path.join(basedir, 'transforms_train.json')) as fp:
         meta_torso = json.load(fp)
     torso_pose = np.array(meta_torso['frames'][0]['transform_matrix'])
-    return poses, auds, bc_img, [H, W, focal, cx, cy], aud_ids, torso_pose
+    return poses, auds, lms, image_size, bc_img, [H, W, focal, cx, cy], aud_ids, torso_pose
