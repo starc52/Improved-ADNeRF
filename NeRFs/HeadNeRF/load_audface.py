@@ -52,7 +52,7 @@ def load_audface_data(basedir, testskip=1, test_file=None, test_rof_file=None, a
     counts = [0]
     image_size = np.array(imageio.imread(os.path.join(basedir,
                                                       'ori_imgs',
-                                                      str(meta['frames'][0]['img_id']) + '.jpg'))).shape[0]
+                                                      str(metas['train']['frames'][0]['img_id']) + '.jpg'))).shape[0]
     for s in splits:
         meta = metas[s]
         imgs = []
