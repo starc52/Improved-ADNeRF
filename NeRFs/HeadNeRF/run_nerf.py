@@ -1040,9 +1040,9 @@ def train():
 
 if __name__ == '__main__':
     torch.set_default_tensor_type('torch.cuda.FloatTensor')
-    try:
-        train()
-    except:
-        extype, value, tb = sys.exc_info()
-        traceback.print_exc()
-        pdb.post_mortem(tb)
+    # try:
+    train()
+    # except:
+    #     extype, value, tb = sys.exc_info()
+    #     traceback.print_exc()
+    #     pdb.post_mortem(tb)
