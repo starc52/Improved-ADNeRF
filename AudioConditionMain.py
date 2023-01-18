@@ -27,8 +27,8 @@ wandb.config = {"batch_size": batch_size,
                 "weight_decay": weight_decay,
                 }
 
-train_audcond_dataset = AudioConditionDataset(csv_file='/scratch/tan/train_landmarks70p.csv')
-val_audcond_dataset = AudioConditionDataset(csv_file='/scratch/tan/val_landmarks70p.csv')
+train_audcond_dataset = AudioConditionDataset(csv_file='/scratch/tan/train_landmarks38p.csv')
+val_audcond_dataset = AudioConditionDataset(csv_file='/scratch/tan/val_landmarks38p.csv')
 
 dataset_sizes = {'train': len(train_audcond_dataset), 'val': len(val_audcond_dataset)}
 
@@ -45,7 +45,7 @@ dataloaders = {'train': train_dataloader, 'val': val_dataloader}
 
 landmark_autoencoder_state = torch.load('./best_autoencoder.pt')
 autoencoder = LandmarkAutoencoder(switch_factor=0.8, embedding_size=64)
-autoencoder.load_state_dict(landmark_autoencoder_state)
+autoencoder.load_state_dict(landmark_autoencoder_state) # F***** Added this now
 landmark_encoder_state = autoencoder.encoder.state_dict()
 
 model = AudioConditionModel(landmarkenc_state=landmark_encoder_state, landmarkenc_trainable=False, audnet_trainable=True).to(device)
