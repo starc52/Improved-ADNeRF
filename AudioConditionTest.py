@@ -3,6 +3,7 @@ from torch.utils.data import Dataset
 from LandmarkModels import LandmarkAutoencoder, LandmarkEncoder
 from AudioConditionDataset import AudioConditionDataset
 from AudioConditionModel import AudioConditionModel
+from NeRFs.HeadNeRF.run_nerf_helpers import AudioNet, AudioAttNet
 import copy
 import time
 import wandb
