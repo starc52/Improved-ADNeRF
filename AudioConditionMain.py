@@ -111,6 +111,8 @@ for epoch in tqdm(range(num_epochs)):
             best_loss = epoch_loss[phase]
             best_audnet = copy.deepcopy(model.audionet.state_dict())
             best_model_wts = copy.deepcopy(model.state_dict())
+            torch.save(best_audnet, 'best_audnet.pt')
+            torch.save(best_model_wts, 'best_audcond.pt')
 
     print()
 
