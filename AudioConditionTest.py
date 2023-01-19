@@ -33,8 +33,8 @@ wandb.config = {"batch_size": batch_size,
                 "weight_decay": weight_decay,
                 }
 
-train_audcond_dataset = AudioConditionDataset(csv_file='/scratch/tan/train_landmarks70p.csv')
-val_audcond_dataset = AudioConditionDataset(csv_file='/scratch/tan/val_landmarks70p.csv')
+train_audcond_dataset = AudioConditionDataset(csv_file='/scratch/tan/train_landmarks1p.csv')
+val_audcond_dataset = AudioConditionDataset(csv_file='/scratch/tan/val_landmarks1p.csv')
 
 dataset_sizes = {'train': len(train_audcond_dataset), 'val': len(val_audcond_dataset)}
 
@@ -64,7 +64,7 @@ landmark_encoder = LandmarkEncoder(embedding_size=64)
 landmark_encoder.load_state_dict(landmark_encoder_state)
 
 audnet_state = model.audionet.state_dict()
-audnet = AudioNet()
+audnet = AudioNet(dim_aud=64)
 audnet.load_state_dict(audnet_state)
 
 
