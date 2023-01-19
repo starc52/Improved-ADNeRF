@@ -1,6 +1,6 @@
 expname = Obama_com
-datadir = /home2/nishant_sachdeva/tan/AD-NeRF/dataset/Obama
-basedir = /home2/nishant_sachdeva/tan/AD-NeRF/dataset/Obama/logs
+datadir = /home2/nishant_sachdeva/tan/Improved-ADNeRF/dataset/Obama
+basedir = /home2/nishant_sachdeva/tan/Improved-ADNeRF/dataset/Obama/logs
 near = 0.6416832089424134
 far = 1.2416832089424132
 testskip = 104
