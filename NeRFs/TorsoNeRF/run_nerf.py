@@ -771,7 +771,7 @@ def train():
 
     # Create nerf model
     render_kwargs_train, render_kwargs_test, start, grad_vars, optimizer, \
-    learned_codes, AudNet_state, optimizer_aud_state, AudAttNet_state, aud_cond_state = create_nerf(
+    learned_codes, AudNet_state, optimizer_aud_state, AudAttNet_state = create_nerf(
         args, 'head.tar', args.dim_aud, device, with_audatt=True, torso_flag=False)
     global_step = start
 
@@ -811,7 +811,7 @@ def train():
     dim_torso_signal = args.dim_aud_body + 2 * input_ch
     # Create torso nerf model
     render_kwargs_train_torso, render_kwargs_test_torso, start, grad_vars_torso, optimizer_torso, \
-    learned_codes_torso, AudNet_state_torso, optimizer_aud_state_torso, _, _ = create_nerf(
+    learned_codes_torso, AudNet_state_torso, optimizer_aud_state_torso, _ = create_nerf(
         args, 'body.tar', dim_torso_signal, device_torso, with_audatt=False, torso_flag=True)
     global_step = start
 
