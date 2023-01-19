@@ -815,14 +815,14 @@ def train():
         args, 'body.tar', dim_torso_signal, device_torso, with_audatt=False, torso_flag=True)
     global_step = start
 
-    AudNet_torso = AudioNet(args.dim_aud_body, args.win_size).to(device_torso)
-    optimizer_Aud_torso = torch.optim.Adam(
-        params=list(AudNet_torso.parameters()), lr=args.lrate, betas=(0.9, 0.999))
+    # AudNet_torso = AudioNet(args.dim_aud_body, args.win_size).to(device_torso)
+    # optimizer_Aud_torso = torch.optim.Adam(
+    #     params=list(AudNet_torso.parameters()), lr=args.lrate, betas=(0.9, 0.999))
 
-    if AudNet_state_torso is not None:
-        AudNet_torso.load_state_dict(AudNet_state_torso)
-    if optimizer_aud_state_torso is not None:
-        optimizer_Aud_torso.load_state_dict(optimizer_aud_state_torso)
+    # if AudNet_state_torso is not None:
+    #     AudNet_torso.load_state_dict(AudNet_state_torso)
+    # if optimizer_aud_state_torso is not None:
+    #     optimizer_Aud_torso.load_state_dict(optimizer_aud_state_torso)
     bds_dict = {
         'near': near,
         'far': far,
