@@ -189,6 +189,7 @@ for epoch in tqdm(range(num_epochs)):
         if phase == 'val' and epoch_loss[phase] < best_loss:
             best_loss = epoch_loss[phase]
             best_model_wts = copy.deepcopy(bin_classifier.state_dict())
+            torch.save(best_model_wts, 'best_bin_classifier.pt')
 
     print()
 
