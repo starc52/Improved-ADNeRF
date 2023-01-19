@@ -407,7 +407,7 @@ def create_nerf(args, ext, dim_aud, device_spec=torch.device('cuda', 0), with_au
     if start > 400000:
         start = 0
     return render_kwargs_train, render_kwargs_test, start, grad_vars, optimizer, learned_codes_dict, \
-           AudNet_state, optimizer_aud_state, AudAttNet_state, aud_cond_state
+           AudNet_state, optimizer_aud_state, AudAttNet_state#, aud_cond_state
 
 
 def raw2outputs(raw, z_vals, rays_d, bc_rgb, raw_noise_std=0, white_bkgd=False, pytest=False):
