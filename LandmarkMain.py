@@ -78,6 +78,7 @@ for epoch in tqdm(range(num_epochs)):
         if phase == 'val' and epoch_loss < best_loss:
             best_loss = epoch_loss
             best_model_wts = copy.deepcopy(model.state_dict())
+            torch.save(best_model_wts, 'best_autoencoder.pt')
 
     print()
 
