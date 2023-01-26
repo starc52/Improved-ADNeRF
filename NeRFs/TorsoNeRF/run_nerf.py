@@ -842,67 +842,70 @@ def train():
             ############### COMMENT BEGIN: if attention is harming rather than improving the performance.
 
             auds_val = []
-            for i in range(poses.shape[0]):
-                left_i = i - smo_half_win
-                right_i = i + smo_half_win
-                pad_left, pad_right = 0, 0
-                if left_i < 0:
-                    pad_left = -left_i
-                    left_i = 0
-                if right_i > poses.shape[0]:
-                    pad_right = right_i - poses.shape[0]
-                    right_i = poses.shape[0]
-                auds_win = auds[left_i:right_i]
-                if pad_left > 0:
-                    auds_win = torch.cat(
-                        (torch.zeros_like(auds_win)[:pad_left], auds_win), dim=0)
-                if pad_right > 0:
-                    auds_win = torch.cat(
-                        (auds_win, torch.zeros_like(auds_win)[:pad_right]), dim=0)
-                auds_win = AudNet(auds_win)
-                aud_smo = AudAttNet(auds_win)
-                auds_val.append(aud_smo)
-            auds_val = torch.stack(auds_val, 0)
-            ############### COMMENT END
+            for toggle in ['one', 'two']:
+                for i in range(poses.shape[0]):
+                    left_i = i - smo_half_win
+                    right_i = i + smo_half_win
+                    pad_left, pad_right = 0, 0
+                    if left_i < 0:
+                        pad_left = -left_i
+                        left_i = 0
+                    if right_i > poses.shape[0]:
+                        pad_right = right_i - poses.shape[0]
+                        right_i = poses.shape[0]
+                    auds_win = auds[left_i:right_i]
+                    if pad_left > 0:
+                        auds_win = torch.cat(
+                            (torch.zeros_like(auds_win)[:pad_left], auds_win), dim=0)
+                    if pad_right > 0:
+                        auds_win = torch.cat(
+                            (auds_win, torch.zeros_like(auds_win)[:pad_right]), dim=0)
+                    auds_win = AudNet(auds_win)
+                    aud_smo = AudAttNet(auds_win)
+                    auds_val.append(aud_smo)
+                auds_val = torch.stack(auds_val, 0)
+                if toggle == 'one':
+                    auds_val = torch.flip(auds_val, [1])
+                ############### COMMENT END
 
-            lm = torch.as_tensor(np.loadtxt(lms[0]).astype(np.float32)).to(device)
-            lm = lm / image_size
-            rof_embs, _ = landmark_encoder(lm)
-            for frame_lm in lms[1:]:
-                lm = torch.as_tensor(np.loadtxt(frame_lm).astype(np.float32)).to(device)
+                lm = torch.as_tensor(np.loadtxt(lms[0]).astype(np.float32)).to(device)
                 lm = lm / image_size
-                rof_emb, _ = landmark_encoder(lm)
-                rof_embs = torch.cat([rof_embs, rof_emb], 0)
-            auds_val_torso = auds_val.clone()
-            auds_val = torch.cat([auds_val, rof_embs], 1)
+                rof_embs, _ = landmark_encoder(lm)
+                for frame_lm in lms[1:]:
+                    lm = torch.as_tensor(np.loadtxt(frame_lm).astype(np.float32)).to(device)
+                    lm = lm / image_size
+                    rof_emb, _ = landmark_encoder(lm)
+                    rof_embs = torch.cat([rof_embs, rof_emb], 0)
+                auds_val_torso = auds_val.clone()
+                auds_val = torch.cat([auds_val, rof_embs], 1)
 
-            adjust_poses = poses.clone()
-            adjust_poses_torso = poses.clone()
+                adjust_poses = poses.clone()
+                adjust_poses_torso = poses.clone()
 
-            et = pose_to_euler_trans(adjust_poses_torso)
-            embed_et = torch.cat(
-                (embed_fn(et[:, :3]), embed_fn(et[:, 3:])), dim=-1).to(device_torso)
-            signal = torch.cat((auds_val_torso[..., :args.dim_aud_body].to(
-                device_torso), embed_et.squeeze()), dim=-1)
-            t_start = time.time()
-            vid_out = cv2.VideoWriter(os.path.join(testsavedir, 'result.avi'),
-                                      cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'), 25, (W, H))
-            for j in tqdm(range(poses.shape[0])):
-                rgbs, disps, last_weights, rgb_fgs = \
-                    render_path(adjust_poses[j:j + 1], auds_val[j:j + 1],
-                                bc_img, hwfcxy, args.chunk, render_kwargs_test)
-                rgbs_torso, disps_torso, last_weights_torso, rgb_fgs_torso = \
-                    render_path(torso_pose.unsqueeze(
-                        0), signal[j:j + 1], bc_img.to(device_torso), hwfcxy, args.chunk, render_kwargs_test_torso)
-                rgbs_com = rgbs * last_weights_torso[..., None] + rgb_fgs_torso
-                rgb8 = to8b(rgbs_com[0])
-                vid_out.write(rgb8[:, :, ::-1])
-                filename = os.path.join(
-                    testsavedir, str(aud_ids[j]) + '.jpg')
-                imageio.imwrite(filename, rgb8)
-                print('finished render', j)
-            print('finished render in', time.time() - t_start)
-            vid_out.release()
+                et = pose_to_euler_trans(adjust_poses_torso)
+                embed_et = torch.cat(
+                    (embed_fn(et[:, :3]), embed_fn(et[:, 3:])), dim=-1).to(device_torso)
+                signal = torch.cat((auds_val_torso[..., :args.dim_aud_body].to(
+                    device_torso), embed_et.squeeze()), dim=-1)
+                t_start = time.time()
+                vid_out = cv2.VideoWriter(os.path.join(testsavedir, 'result.avi'),
+                                          cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'), 25, (W, H))
+                for j in tqdm(range(poses.shape[0])):
+                    rgbs, disps, last_weights, rgb_fgs = \
+                        render_path(adjust_poses[j:j + 1], auds_val[j:j + 1],
+                                    bc_img, hwfcxy, args.chunk, render_kwargs_test)
+                    rgbs_torso, disps_torso, last_weights_torso, rgb_fgs_torso = \
+                        render_path(torso_pose.unsqueeze(
+                            0), signal[j:j + 1], bc_img.to(device_torso), hwfcxy, args.chunk, render_kwargs_test_torso)
+                    rgbs_com = rgbs * last_weights_torso[..., None] + rgb_fgs_torso
+                    rgb8 = to8b(rgbs_com[0])
+                    vid_out.write(rgb8[:, :, ::-1])
+                    filename = os.path.join(
+                        testsavedir, str(aud_ids[j]) + '.jpg')
+                    imageio.imwrite(filename, rgb8)
+                    print('finished render', j)
+                print('finished render in', time.time() - t_start)
+                vid_out.release()
             return
 
     N_rand = args.N_rand
