@@ -868,14 +868,16 @@ def train():
 
             lm = torch.as_tensor(np.loadtxt(lms[0]).astype(np.float32)).to(device)
             lm = lm / image_size
-            rof_embs, _ = landmark_encoder(lm)
+            rof_embs, mouth_embs = landmark_encoder(lm)
             for frame_lm in lms[1:]:
                 lm = torch.as_tensor(np.loadtxt(frame_lm).astype(np.float32)).to(device)
                 lm = lm / image_size
-                rof_emb, _ = landmark_encoder(lm)
+                rof_emb, mouth_emb = landmark_encoder(lm)
                 rof_embs = torch.cat([rof_embs, rof_emb], 0)
+                mouth_embs = torch.cat([mouth_embs, mouth_emb], 0)
             auds_val_torso = auds_val.clone()
-            auds_val = torch.cat([auds_val, rof_embs], 1)
+            # auds_val = torch.cat([auds_val, rof_embs], 1) ##### Change this after the without audio experiment.
+            auds_val = torch.cat([mouth_embs, rof_embs], 1)
 
             adjust_poses = poses.clone()
             adjust_poses_torso = poses.clone()

@@ -769,15 +769,18 @@ def train():
             if args.use_train_lms:
                 lm = torch.as_tensor(np.loadtxt(lms[0]).astype(np.float32)).to(device)
                 lm = lm / image_size
-                rof_embs, _ = landmark_encoder(lm)
+                rof_embs, mouth_embs = landmark_encoder(lm)
                 for frame_lm in lms[1:]:
                     lm = torch.as_tensor(np.loadtxt(frame_lm).astype(np.float32)).to(device)
                     lm = lm / image_size
-                    rof_emb, _ = landmark_encoder(lm)
+                    rof_emb, mouth_emb = landmark_encoder(lm)
                     rof_embs = torch.cat([rof_embs, rof_emb], 0)
+                    mouth_embs = torch.cat([mouth_embs, mouth_emb], 0)
             else:
                 rof_embs = torch.cat([rof_mean]*auds.size(0), 0)
-            auds_val = torch.cat([auds_val, rof_embs], 1)
+            # auds_val = torch.cat([auds_val, rof_embs], 1) ##### Change after without audio experiment
+
+            auds_val = torch.cat([mouth_embs, rof_embs], 1)
 
             rgbs, disp, last_weight = render_path(poses, auds_val, bc_img, hwfcxy, args.chunk, render_kwargs_test,
                                                   gt_imgs=images, savedir=testsavedir, render_factor=args.render_factor)
@@ -854,7 +857,7 @@ def train():
             rect = sample_rects[img_i]
             mouth_rect = mouth_rects[img_i]
             aud = auds[img_i]
-            rof_emb, _ = landmark_encoder(lm)
+            rof_emb, mouth_emb = landmark_encoder(lm)
             rof_mean = (rof_count*rof_mean)+rof_emb
             rof_count += 1
             rof_mean /= rof_count
@@ -1013,18 +1016,21 @@ def train():
             if args.use_train_lms:
                 lm = torch.as_tensor(np.loadtxt(lms[i_val][0]).astype(np.float32)).to(device)
                 lm = lm / image_size
-                rof_embs, _ = landmark_encoder(lm)
+                rof_embs, mouth_embs = landmark_encoder(lm)
                 for frame_lm in lms[i_val][1:]:
                     lm = torch.as_tensor(np.loadtxt(frame_lm).astype(np.float32)).to(device)
                     lm = lm / image_size
-                    rof_emb, _ = landmark_encoder(lm)
+                    rof_emb, mouth_emb = landmark_encoder(lm)
                     rof_embs = torch.cat([rof_embs, rof_emb], 0)
+                    mouth_embs = torch.cat([mouth_embs, mouth_emb], 0)
             else:
                 rof_embs = torch.cat([rof_mean]*auds_val.size(0), 0)
 
             # rof_embs = torch.cat([rof_emb] * auds_val.size(0), 0)
 
-            auds_val = torch.cat([auds_val, rof_embs], 1)
+            # auds_val = torch.cat([auds_val, rof_embs], 1) ##### Change after without audio experiment
+
+            auds_val = torch.cat([mouth_embs, rof_embs], 1)
             with torch.no_grad():
                 render_path(torch.Tensor(poses[i_val]).to(
                     device), auds_val, bc_img, hwfcxy, args.chunk, render_kwargs_test, gt_imgs=None, savedir=testsavedir)
