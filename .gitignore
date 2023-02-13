@@ -6,6 +6,7 @@ dataset/*/com_imgs
 dataset/*/head_imgs
 dataset/*/logs
 dataset/*
+data_util/face_tracking/3DMM/*
 *.jpg
 Orig-NeRFs/HeadNeRF/__pycache__/*
 Orig-NeRFs/TorsoNeRF/__pycache__/*
