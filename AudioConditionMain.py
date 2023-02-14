@@ -18,7 +18,7 @@ embedding_size = 64
 lrate_decay = 2500
 lrate = 1e-3
 
-device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+device = torch.device("cuda:1" if torch.cuda.is_available() else "cpu")
 
 wandb.config = {"batch_size": batch_size,
                 "accumulation": accumulation,
