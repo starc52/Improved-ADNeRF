@@ -8,7 +8,7 @@ import time
 import wandb
 from tqdm import tqdm
 
-wandb.init(project="Audio-Conditioning")
+# wandb.init(project="Audio-Conditioning")
 
 batch_size = 1024
 accumulation = 1
@@ -20,12 +20,12 @@ lrate = 1e-3
 
 device = torch.device("cuda:1" if torch.cuda.is_available() else "cpu")
 
-wandb.config = {"batch_size": batch_size,
-                "accumulation": accumulation,
-                "embedding_size": embedding_size,
-                "epochs": num_epochs,
-                "weight_decay": weight_decay,
-                }
+# wandb.config = {"batch_size": batch_size,
+#                 "accumulation": accumulation,
+#                 "embedding_size": embedding_size,
+#                 "epochs": num_epochs,
+#                 "weight_decay": weight_decay,
+#                 }
 
 #### Audcond obama only experiment
 # train_audcond_dataset = AudioConditionDataset(csv_file='/scratch/tan/train_landmarks38p.csv')
@@ -58,7 +58,7 @@ landmark_encoder_state = autoencoder.encoder.state_dict()
 model = AudioConditionModel(landmarkenc_state=landmark_encoder_state, landmarkenc_trainable=False, audnet_trainable=True).to(device)
 optimizer = torch.optim.Adam(model.parameters(), lr=lrate, weight_decay=weight_decay)
 since = time.time()
-wandb.watch(model, log_freq = 100)
+# wandb.watch(model, log_freq = 100)
 best_loss = 1e10
 global_step = 0
 epoch_loss = {'train': 0.0, 'val': 0.0}
@@ -88,12 +88,12 @@ for epoch in tqdm(range(num_epochs)):
                     actual_loss += contrastive_loss
                     contrastive_loss.backward()
                     if (batch_id+1)%accumulation == 0 or batch_id == len(dataloaders[phase])-1:
-                        wandb.log({"train_contrastive_loss": actual_loss})
+                        # wandb.log({"train_contrastive_loss": actual_loss})
                         optimizer.step()
                         optimizer.zero_grad()
                 else:
-                    wandb.log({'val_contrastive_loss': contrastive_loss})
-
+                    # wandb.log({'val_contrastive_loss': contrastive_loss})
+                    pass
             # statistics
             if phase == 'train':
                 running_loss[phase] += actual_loss * query.size(0)
@@ -111,7 +111,7 @@ for epoch in tqdm(range(num_epochs)):
         epoch_loss[phase] = running_loss[phase] / dataset_sizes['train']
         epoch_loss[phase] = running_loss[phase] / dataset_sizes['val']
         print(f'{phase} Loss: {epoch_loss[phase]:.4f}')
-        wandb.log({phase + "_loss": epoch_loss[phase]})
+        # wandb.log({phase + "_loss": epoch_loss[phase]})
 
         # deep copy the model
         if phase == 'val' and epoch_loss[phase] < best_loss:
