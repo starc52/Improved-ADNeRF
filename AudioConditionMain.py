@@ -42,11 +42,11 @@ dataset_sizes = {'train': len(train_audcond_dataset), 'val': len(val_audcond_dat
 train_dataloader = torch.utils.data.DataLoader(train_audcond_dataset,
                                                batch_size=batch_size,
                                                shuffle=True,
-                                               num_workers=2)
+                                               num_workers=0)
 val_dataloader = torch.utils.data.DataLoader(val_audcond_dataset,
                                              batch_size=batch_size,
                                              shuffle=True,
-                                             num_workers=2)
+                                             num_workers=0)
 
 dataloaders = {'train': train_dataloader, 'val': val_dataloader}
 
