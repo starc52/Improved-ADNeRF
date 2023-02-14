@@ -552,7 +552,7 @@ def config_parser():
     parser.add_argument("--N_iters", type=int, default=400000,
                         help='number of iterations')
     # args.load_aud_cond
-    parser.add_argument("--load_aud_cond", type=str, default='best_audcond.pt',
+    parser.add_argument("--load_aud_cond", type=str, default=None,
                         help='load from audcond model')
 
     # rendering options
