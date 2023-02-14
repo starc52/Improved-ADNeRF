@@ -67,7 +67,8 @@ class AudioConditionIdentityConstantDataset(Dataset):
         self.landmarks_list = glob.glob(os.path.join(lms_path, '*.lms'))
         self.num_frames = len(self.landmarks_list)-1
         self.partition = partition
-        if dataset == 0:
+        self.dataset = dataset
+        if self.dataset == 0:
             self.landmarks = np.array([np.loadtxt(os.path.join(lms_path, str(i)+'.lms')) for i in range(0, self.partition)]).astype(np.float32)
         else:
             self.landmarks = np.array([np.loadtxt(os.path.join(lms_path, str(i)+'.lms')) for i in range(self.partition, self.num_frames)]).astype(np.float32)
