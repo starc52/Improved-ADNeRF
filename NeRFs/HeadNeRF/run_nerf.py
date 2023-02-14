@@ -21,7 +21,7 @@ import wandb
 
 wandb.init(project="Improved-ADNeRF", entity="starc52")
 
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 np.random.seed(0)
 DEBUG = False
 

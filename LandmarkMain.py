@@ -13,7 +13,7 @@ num_epochs = 20
 switch_factor = 0.8
 weight_decay = 1e-5
 embedding_size = 64
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 wandb.config={"batch_size":batch_size,
               "epochs": num_epochs,

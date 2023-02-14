@@ -4,7 +4,7 @@ import torch.nn.functional as F
 from NeRFs.HeadNeRF.run_nerf_helpers import AudioNet, AudioAttNet
 from LandmarkModels import LandmarkAutoencoder, LandmarkEncoder
 
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 
 class AudioConditionModel(nn.Module):
