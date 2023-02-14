@@ -558,6 +558,10 @@ def config_parser():
     parser.add_argument("--load_aud_cond", type=str, default=None,
                         help='load from audcond model')
 
+    # args.load_landmark_auto
+    parser.add_argument("--load_landmark_auto", type=str, default=None,
+                        help='load from landmark autoencoder')
+
     # rendering options
     parser.add_argument("--N_samples", type=int, default=64,
                         help='number of coarse samples per ray')
@@ -741,8 +745,9 @@ def train():
         aud_cond_model.load_state_dict(aud_cond_state)
         AudNet.load_state_dict(aud_cond_model.audionet.state_dict())
     if landmark_auto_state is not None:
+        print("loaded autoencoder")
         landmark_auto.load_state_dict(landmark_auto_state)
-        landmark_encoder.load_state_dict(landmark_auto.landmark_encoder.state_dict())
+        landmark_encoder.load_state_dict(landmark_auto.encoder.state_dict())
 
     # COMMENT BEGIN if audnet needs to be finetuned
     for param in AudNet.parameters():
