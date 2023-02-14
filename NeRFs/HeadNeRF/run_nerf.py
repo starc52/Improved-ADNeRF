@@ -15,7 +15,7 @@ dir_path = os.path.dirname(os.path.realpath(__file__))
 sys.path.append(os.path.abspath(os.path.join(dir_path, os.pardir, os.pardir)))
 
 from AudioConditionModel import AudioConditionModel
-from LandmarkModels import LandmarkEncoder
+from LandmarkModels import LandmarkEncoder, LandmarkAutoencoder
 
 import wandb
 
@@ -292,6 +292,7 @@ def create_nerf(args):
     optimizer_aud_state = None
     optimizer_audatt_state = None
     aud_cond_state = None
+    landmark_auto_state = None
     if len(ckpts) > 0 and not args.no_reload:
         ckpt_path = ckpts[-1]
         print('Reloading from', ckpt_path)
@@ -313,6 +314,8 @@ def create_nerf(args):
 
     if args.load_aud_cond is not None:
         aud_cond_state = torch.load(args.load_aud_cond)
+    if args.load_landmark_auto is not None:
+        landmark_auto_state = torch.load(args.load_landmark_auto)
     ##########################
 
     render_kwargs_train = {
@@ -338,7 +341,7 @@ def create_nerf(args):
     render_kwargs_test['perturb'] = False
     render_kwargs_test['raw_noise_std'] = 0.
     return render_kwargs_train, render_kwargs_test, start, grad_vars, optimizer, learned_codes_dict, \
-        AudNet_state, optimizer_aud_state, AudAttNet_state, optimizer_audatt_state, aud_cond_state
+        AudNet_state, optimizer_aud_state, AudAttNet_state, optimizer_audatt_state, aud_cond_state, landmark_auto_state
 
 
 def raw2outputs(raw, z_vals, rays_d, bc_rgb, raw_noise_std=0, white_bkgd=False, pytest=False):
@@ -712,13 +715,15 @@ def train():
 
     # Create nerf model
     render_kwargs_train, render_kwargs_test, start, grad_vars, optimizer, \
-        learned_codes, AudNet_state, optimizer_aud_state, AudAttNet_state, optimizer_audatt_state, aud_cond_state \
-        = create_nerf(args)
+        learned_codes, AudNet_state, optimizer_aud_state, AudAttNet_state, \
+        optimizer_audatt_state, aud_cond_state, landmark_auto_state = create_nerf(args)
+
     global_step = start
 
     AudNet = AudioNet(args.dim_aud, args.win_size).to(device)
     AudAttNet = AudioAttNet().to(device)
     aud_cond_model = AudioConditionModel().to(device)
+    landmark_auto = LandmarkAutoencoder(switch_factor=0.8, embedding_size=64).to(device)
     landmark_encoder = LandmarkEncoder().to(device)
     optimizer_Aud = torch.optim.Adam(
         params=list(AudNet.parameters()), lr=args.audnet_lrate, betas=(0.9, 0.999))
@@ -734,8 +739,10 @@ def train():
         optimizer_AudAtt.load_state_dict(optimizer_audatt_state)
     if aud_cond_state is not None:
         aud_cond_model.load_state_dict(aud_cond_state)
-        landmark_encoder.load_state_dict(aud_cond_model.landmark_encoder.state_dict())
         AudNet.load_state_dict(aud_cond_model.audionet.state_dict())
+    if landmark_auto_state is not None:
+        landmark_auto.load_state_dict(landmark_auto_state)
+        landmark_encoder.load_state_dict(landmark_auto.landmark_encoder.state_dict())
 
     # COMMENT BEGIN if audnet needs to be finetuned
     for param in AudNet.parameters():
