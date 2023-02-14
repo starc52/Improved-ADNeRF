@@ -95,7 +95,10 @@ class AudioConditionIdentityConstantDataset(Dataset):
         else:
             sample_indice = list(range(self.partition, self.num_frames))
         removal_range = random.randint(100, 500)
-        removal_indice = range(max(0, aud_idx - removal_range), min(aud_idx + removal_range, self.num_frames))
+        if self.dataset == 0:
+            removal_indice = range(max(0, aud_idx - removal_range), min(aud_idx + removal_range, self.partition))
+        else:
+            removal_indice = range(max(self.partition, aud_idx - removal_range), min(aud_idx + removal_range, self.num_frames))
         for index in removal_indice:
             sample_indice.remove(index)
         if len(sample_indice) != 0:
