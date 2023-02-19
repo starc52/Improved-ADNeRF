@@ -790,7 +790,7 @@ def train():
     AudNet = AudioNet(args.dim_aud, args.win_size).to(device)
     AudAttNet = AudioAttNet().to(device)
     aud_cond_model = AudioConditionModel().to(device)
-    landmark_auto = LandmarkAutoencoder().to(device)
+    landmark_auto = LandmarkAutoencoder(switch_factor=0.8, embedding_size=64).to(device)
     landmark_encoder = LandmarkEncoder().to(device)
     optimizer_Aud = torch.optim.Adam(
         params=list(AudNet.parameters()), lr=args.lrate, betas=(0.9, 0.999))
