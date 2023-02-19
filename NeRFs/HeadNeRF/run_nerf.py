@@ -789,7 +789,8 @@ def train():
                     rof_embs = torch.cat([rof_embs, rof_emb], 0)
                     mouth_embs = torch.cat([mouth_embs, mouth_emb], 0)
             else:
-                rof_embs = torch.cat([rof_mean]*auds.size(0), 0)
+                pass
+                # rof_embs = torch.cat([rof_mean]*auds.size(0), 0)
             # auds_val = torch.cat([auds_val, rof_embs], 1) ##### Change after without audio experiment
 
             auds_val = torch.cat([mouth_embs, rof_embs], 1)
@@ -1040,7 +1041,8 @@ def train():
                     rof_embs = torch.cat([rof_embs, rof_emb], 0)
                     mouth_embs = torch.cat([mouth_embs, mouth_emb], 0)
             else:
-                rof_embs = torch.cat([rof_mean]*auds_val.size(0), 0)
+                pass
+                # rof_embs = torch.cat([rof_mean]*auds_val.size(0), 0)
 
             # rof_embs = torch.cat([rof_emb] * auds_val.size(0), 0)
 
