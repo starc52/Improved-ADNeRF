@@ -1,6 +1,0 @@
-expname = Obama_head
-datadir = /home/starc/CV/Improved-ADNeRF/dataset/Obama
-basedir = /home/starc/CV/Improved-ADNeRF/dataset/Obama/logs
-near = 0.641658353805542
-far = 1.241658353805542
-testskip = 104

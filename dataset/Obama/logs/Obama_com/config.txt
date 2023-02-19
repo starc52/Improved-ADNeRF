@@ -1,7 +1,7 @@
 expname = Obama_com
-datadir = /home2/nishant_sachdeva/tan/Improved-ADNeRF/dataset/Obama
-basedir = /home2/nishant_sachdeva/tan/Improved-ADNeRF/dataset/Obama/logs
-near = 0.6416832089424134
-far = 1.2416832089424132
+datadir = /home/starc/CV/Improved-ADNeRF/dataset/Obama
+basedir = /home/starc/CV/Improved-ADNeRF/dataset/Obama/logs
+near = 0.641658353805542
+far = 1.241658353805542
 with_test = 1
-test_pose_file = transforms_val.json
+test_pose_file = transforms_train.json

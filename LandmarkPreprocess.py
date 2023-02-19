@@ -13,11 +13,11 @@ def preprocess(dataset_dir, csv_path):
     videos = []
     for idx in ids:
         temp = os.listdir(os.path.join(dataset_dir, idx))
-        temp = [os.path.join(dataset_dir, idx, vid) for vid in temp]
+        temp = [os.path.join(dataset_dir, idx, vid) for vid in temp if vid.split(".")[-1] != "txt"]
         videos += temp
 
-    #for video_path in tqdm(videos):
-        #video_to_frames(video_path, video_path.split('.')[0])
+    for video_path in tqdm(videos):
+        video_to_frames(video_path, video_path.split('.')[0])
 
     extract_landmarks(dataset_dir, csv_path)
 
@@ -44,7 +44,7 @@ def extract_landmarks(dataset_dir, csv_path):
     df.to_csv(csv_path)
 
 
-def video_to_frames(input_loc, output_loc, skip_frames=15):
+def video_to_frames(input_loc, output_loc, skip_frames=1):
     """Function to extract frames from input video file
     and save them as separate frames in an output directory.
     Args:
@@ -75,8 +75,8 @@ def video_to_frames(input_loc, output_loc, skip_frames=15):
             continue
         # Write the results back to output location.
         cv2.imwrite(output_loc + "/%#05d.jpg" % (count + 1), frame)
-        if count % skip_frames != 0:
-            os.remove(output_loc + "/%#05d.jpg" % (count + 1))
+        #if count % skip_frames != 0:
+            #os.remove(output_loc + "/%#05d.jpg" % (count + 1))
         count = count + 1
 
         # If there are no more frames left
@@ -92,4 +92,4 @@ def video_to_frames(input_loc, output_loc, skip_frames=15):
 
 
 if __name__ == '__main__':
-    preprocess('/scratch/tan/fraction/', '/scratch/tan/landmarks.csv')
+    preprocess('/nfs/detection/starc/lrs3/pretrain/', '/nfs/detection/starc/lrs3/landmarks_pretrain.csv')
